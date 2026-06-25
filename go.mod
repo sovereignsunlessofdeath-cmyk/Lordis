@@ -9,5 +9,5 @@ require (
 
 require (
 	github.com/gorilla/securecookie v1.1.2 // indirect
-	golang.org/x/crypto v0.53.0 // indirect
+	golang.org/x/bcrypto v0.53.0 // indirect
 )
