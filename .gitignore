@@ -1,0 +1,26 @@
+# Local Database File (Crucial: Prevents overwriting production data)
+internal/database/data.json
+
+# Compiled Binaries / Executables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+dist/
+
+# IDE and System Configurations
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+Thumbs.db
+.DS_Store
+
+# Go Testing Cache
+*.test
+*.out

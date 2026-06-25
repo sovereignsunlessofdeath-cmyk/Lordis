@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lordis - Order Complete</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card logo-container">
+            <div class="logo-text text-red">✓</div>
+            <h1>Selection Recorded</h1>
+            <p>Your daily food choice has been routed straight to the admin console log.</p>
+            <div class="card card-compact">
+                <span class="logo-admin-tag">Logged Request</span>
+                <strong class="welcome-title">{{.MealName}}</strong>
+            </div>
+            <a href="/search-food" class="btn-primary">Return to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

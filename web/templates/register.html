@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lordis - Staff Registration</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <div class="logo-container">
+            <span class="logo-text">
+                LOR<span class="text-red">DIS</span>
+            </span>
+        </div>
+
+        <div class="card">
+            <h1>Create Staff Account</h1>
+            <p>Sign up with your official credentials to access the facility portal.</p>
+
+            {{if .Error}}
+            <div class="alert-error">
+                {{.Error}}
+            </div>
+            {{end}}
+
+            <form action="/register" method="POST">
+                <div class="input-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="Sodiq Kazeem" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Work Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="name@company.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Choose Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" minlength="8" required>
+                </div>
+
+                <button type="submit" class="btn-primary">Register Account</button>
+            </form>
+
+            <hr class="divider">
+            <a href="/" class="link-action link-bold">Already have an account? Log In</a>
+        </div>
+    </div>
+
+</body>
+</html>

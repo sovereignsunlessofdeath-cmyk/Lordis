@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lordis - Order Food</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="body-padding">
+    <div class="container">
+        <div class="logo-left">
+            <p class="welcome-title">Welcome, Staff</p>
+            <p class="logo-admin-tag">What would you like to eat today?</p>
+        </div>
+        <h1 class="section-title">MENU</h1>
+        <div class="card card-compact">
+            <div class="flex-row-space">
+                <div>
+                    <h3 class="welcome-title">PARTY RICE WITH CHICKEN</h3>
+                    <span class="text-red link-bold">₦4,000</span>
+                </div>
+                <form action="/order" method="POST">
+                    <input type="hidden" name="item_id" value="party_rice_chicken">
+                    <button type="submit" class="btn-primary btn-compact">Select</button>
+                </form>
+            </div>
+        </div>
+        <div class="card card-compact">
+            <div class="flex-row-space">
+                <div>
+                    <h3 class="welcome-title">PARTY RICE WITH BEEF</h3>
+                    <span class="text-red link-bold">₦3,000</span>
+                </div>
+                <form action="/order" method="POST">
+                    <input type="hidden" name="item_id" value="party_rice_beef">
+                    <button type="submit" class="btn-primary btn-compact">Select</button>
+                </form>
+            </div>
+        </div>
+        <nav class="nav-bottom">
+            <a href="/search-food" class="nav-item active"><span class="nav-icon">🏠</span><span>Home</span></a>
+            <a href="/submit-ticket" class="nav-item"><span class="nav-icon">🎫</span><span>Requests</span></a>
+            <a href="/history" class="nav-item"><span class="nav-icon">🕒</span><span>Orders</span></a>
+            <a href="/profile" class="nav-item"><span class="nav-icon">👤</span><span>Profile</span></a>
+        </nav>
+    </div>
+</body>
+</html>
