@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
@@ -29,4 +31,14 @@ type AppData struct {
 	Menu             []string `json:"menu"`
 	Tickets          []Ticket `json:"tickets"`
 	TicketCategories []string `json:"ticket_categories"`
+}
+
+// Order represents an order record if you migrate orders table.
+type Order struct {
+    ID int
+    Username string
+    ItemID string
+    Quantity int
+    Status string
+    CreatedAt time.Time
 }

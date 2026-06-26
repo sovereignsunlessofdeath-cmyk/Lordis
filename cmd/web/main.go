@@ -6,8 +6,11 @@ import (
 	"os"
 	"time"
 
+	"lordis/internal/database"
 	"lordis/internal/handlers"
 	"lordis/internal/middleware"
+
+	"github.com/joho/godotenv"
 
 	"github.com/go-chi/chi/v5"
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
@@ -21,9 +24,44 @@ func main() {
 	r.Use(chiMiddleware.Logger)    // Prints clean incoming HTTP request logs to your terminal
 	r.Use(chiMiddleware.Recoverer) // Prevents the server from crashing completely if code panics
 
+	// Simple CORS middleware to allow preflight and cross-origin POSTs
+	r.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Adjust this origin in production to a specific domain rather than '*'
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+			if r.Method == http.MethodOptions {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	})
+
 	// 3. Mount Static Assets File Server (/web/static/css and /web/static/js)
 	staticDir := http.Dir("web/static")
 	fileServer(r, "/static", staticDir)
+
+	// Load environment variables from .env if present
+	_ = godotenv.Load()
+
+	// If DATABASE_URL is provided, attempt to connect and run migrations
+	config := database.NewConfigFromEnv()
+	if config.HasDatabaseURL() {
+		if err := database.Connect(); err != nil {
+			fmt.Printf("Warning: could not connect to database: %v\n", err)
+		} else {
+			if err := database.Migrate(config.MigrationPath); err != nil {
+				fmt.Printf("Warning: migration failed: %v\n", err)
+			} else {
+				fmt.Println("Database connected and migrated")
+			}
+		}
+	}
 
 	// ==========================================
 	// 🔓 OPEN ACCESS ROUTES (No Login Required)
@@ -31,14 +69,21 @@ func main() {
 	r.Get("/", handlers.ShowLoginPage)
 	r.Get("/login", handlers.ShowLoginPage)
 	r.Post("/login", handlers.LoginHandler)
+	r.Get("/register", handlers.ShowRegisterPage)
 	r.Post("/register", handlers.RegisterHandler)
-	
-	// Password Recovery routes
-	r.Get("/forgot_password", handlers.ShowForgotPasswordPage)
-	r.Post("/forgot_password", handlers.RecoverPasswordHandler)
-	
-	r.Get("/logout", handlers.LogoutHandler)
 
+	// Password Recovery routes
+	r.Get("/forgot-password", handlers.ShowForgotPasswordPage)
+	r.Post("/forgot-password", handlers.RecoverPasswordHandler)
+
+	r.Get("/logout", handlers.LogoutHandler)
+	r.Get("/login_admin", handlers.ShowAdminLoginPage)
+	r.Get("/login_admin/", handlers.ShowAdminLoginPage)
+	r.Get("/admin/register", handlers.ShowAdminRegisterPage)
+	r.Get("/admin/register/", handlers.ShowAdminRegisterPage)
+	r.Post("/admin/register", handlers.AdminRegisterHandler)
+	r.Post("/admin/register/", handlers.AdminRegisterHandler)
+	r.Post("/admin/login", handlers.AdminLoginHandler)
 	// ==========================================
 	// 🛡️ PROTECTED STAFF ROUTES (Login Required)
 	// ==========================================
@@ -70,7 +115,6 @@ func main() {
 		admin.Use(middleware.LoginRequired)
 		admin.Use(middleware.AdminRequired)
 
-		admin.Get("/login_admin", handlers.ShowAdminLoginPage) // Admin specific login view
 		admin.Get("/tickets", handlers.ShowAdminTicketsDashboard)
 		admin.Get("/respond_ticket/{ticket_id}", handlers.ShowRespondTicketPage)
 		admin.Post("/respond_ticket/{ticket_id}", handlers.ProcessTicketResponse)
@@ -99,7 +143,7 @@ func main() {
 // fileServer sets up a sub-router to serve CSS, Javascript, and media image requests safely
 func fileServer(r chi.Router, path string, root http.FileSystem) {
 	fs := http.StripPrefix(path, http.FileServer(root))
-	
+
 	r.Get(path+"/*", func(w http.ResponseWriter, r *http.Request) {
 		fs.ServeHTTP(w, r)
 	})

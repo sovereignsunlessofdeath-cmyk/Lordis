@@ -1,37 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lordis - Staff Terminal</title>
-    <link class="style" rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+    <link class="style" rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
     <div class="container">
-        <div class="logo-container">
-            <span class="logo-text">LOR<span class="text-red">DIS</span></span>
-        </div>
-        <div class="card">
-            <h1>Staff Sign In</h1>
-            <p>Access your automated operations, food logs, and shift requests.</p>
-            {{if .Error}}
-            <div class="alert-error">{{.Error}}</div>
-            {{end}}
-            <form action="/login" method="POST">
-                <div class="input-group">
-                    <label for="email">Work Email</label>
-                    <input type="email" id="email" name="email" placeholder="name@company.com" required>
-                </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-primary">Authenticate Terminal</button>
-            </form>
-            <a href="/forgot-password" class="link-action">Forgot Account Credentials?</a>
-            <hr class="divider">
-            <a href="/register" class="btn-primary link-action text-red">Create Staff Account</a>
-        </div>
+      <div class="logo-container">
+        <span class="logo-text">LOR<span class="text-red">DIS</span></span>
+      </div>
+      <div class="card">
+        <h1>Staff Sign In</h1>
+        <p>Access your automated operations, food logs, and shift requests.</p>
+        {{if .Error}}
+        <div class="alert-error">{{.Error}}</div>
+        {{end}}
+        <form action="/login" method="POST">
+          <div class="input-group">
+            <label for="email">Work Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="name@company.com"
+              required
+            />
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-primary">Login</button>
+        </form>
+        <a href="/forgot-password" class="link-action"
+          >Forgot Account Credentials?</a
+        >
+        <a href="/login_admin" class="link-action">Admin Login</a>
+        <p class="small-note">
+          Admin registration requires the official key and must be completed
+          through the admin portal.
+        </p>
+        <hr class="divider" />
+        <a href="/register" class="btn-primary link-action text-red"
+          >Create Staff Account</a
+        >
+      </div>
     </div>
-</body>
+  </body>
 </html>

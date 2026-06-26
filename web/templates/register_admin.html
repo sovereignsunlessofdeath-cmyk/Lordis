@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lordis - Admin Access</title>
+    <title>Lordis - Admin Registration</title>
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
@@ -15,14 +15,25 @@
         >
       </div>
       <div class="card">
-        <h1>Admin Portal</h1>
+        <h1>Admin Registration</h1>
         <p>
-          Authorized personnel only. Secure terminal authentication required.
+          Enter the admin registration key to create a new administrator
+          account.
         </p>
         {{if .Error}}
         <div class="alert-error">{{.Error}}</div>
         {{end}}
-        <form action="/admin/login" method="POST">
+        <form action="/admin/register" method="POST">
+          <div class="input-group">
+            <label for="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Daniel Example"
+              required
+            />
+          </div>
           <div class="input-group">
             <label for="email">Administrator Email</label>
             <input
@@ -34,7 +45,7 @@
             />
           </div>
           <div class="input-group">
-            <label for="password">Security Credentials</label>
+            <label for="password">Password</label>
             <input
               type="password"
               id="password"
@@ -43,14 +54,21 @@
               required
             />
           </div>
-          <button type="submit" class="btn-primary">
-            Access Management Console
-          </button>
+          <div class="input-group">
+            <label for="admin_key">Admin Registration Key</label>
+            <input
+              type="password"
+              id="admin_key"
+              name="admin_key"
+              placeholder="Enter your admin key"
+              required
+            />
+          </div>
+          <button type="submit" class="btn-primary">Register Admin</button>
         </form>
-        <a href="/admin/register" class="link-action">Register as Admin</a>
         <hr class="divider" />
-        <a href="/login" class="btn-primary">Staff Login</a>
-        <a href="/" class="link-action">Return to Main Portal</a>
+        <a href="/login_admin" class="link-action">Back to Admin Login</a>
+        <a href="/login" class="link-action">Staff Login</a>
       </div>
     </div>
   </body>

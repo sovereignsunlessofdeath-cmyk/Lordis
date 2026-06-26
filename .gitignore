@@ -24,3 +24,6 @@ Thumbs.db
 # Go Testing Cache
 *.test
 *.out
+
+# Local environment file
+.env

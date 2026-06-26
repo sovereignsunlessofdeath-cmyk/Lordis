@@ -39,7 +39,7 @@ func SendBrevoEmail(toEmail string, ticketID int, status, message string) {
 	}
 
 	payload := BrevoPayload{
-		Sender:  BrevoSender{Name: "CitiData Helpdesk", Email: "oluwadamilareoshodi@gmail.com"},
+		Sender:  BrevoSender{Name: "Lordis help", Email: "oluwadamilareoshodi@gmail.com"},
 		To:      []BrevoRecipient{{Email: toEmail}},
 		Subject: subjectLine,
 		HTMLContent: fmt.Sprintf(`
