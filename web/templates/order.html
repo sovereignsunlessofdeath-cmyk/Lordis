@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lordis - Weekly Meal Request</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body class="body-padding">
+    <div class="container">
+      <div class="logo-left">
+        <span class="logo-text">Weekly Meal Request</span>
+        <p class="logo-admin-tag">
+          Choose one meal for a day of the week and submit it for review.
+        </p>
+      </div>
+
+      <div class="card">
+        <h1 class="welcome-title">Make Your Selection</h1>
+        <p class="logo-admin-tag">
+          You can update your request later by editing it on this page.
+        </p>
+
+        <form action="/order" method="POST">
+          <div class="input-group">
+            <label for="name">Your Name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value="{{.Name}}"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="day">Day of the Week</label>
+            <select id="day" name="day" required>
+              <option value="">Select a day</option>
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="meal">Search meal option</label>
+            <input
+              type="text"
+              id="meal"
+              name="q"
+              value="{{.Query}}"
+              placeholder="Search for rice, amala, soup..."
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="meal">Meal Choice</label>
+            <select id="meal" name="meal" required>
+              <option value="">Select a meal</option>
+              {{range .Menu}}
+              <option value="{{.}}">{{.}}</option>
+              {{end}}
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary">Submit Meal Request</button>
+        </form>
+      </div>
+
+      <div class="card card-compact">
+        <h3 class="welcome-title">How it works</h3>
+        <ul>
+          <li>Enter your name and choose the day.</li>
+          <li>Search or browse the available meals for the week.</li>
+          <li>Select one meal for that day and submit.</li>
+          <li>
+            If you need to change your choice, come back and edit it here.
+          </li>
+        </ul>
+      </div>
+
+      <nav class="nav-bottom">
+        <a href="/search-food" class="nav-item"
+          ><span class="nav-icon">🏠</span><span>Home</span></a
+        >
+        <a href="/submit-ticket" class="nav-item"
+          ><span class="nav-icon">🎫</span><span>Requests</span></a
+        >
+        <a href="/order-history" class="nav-item"
+          ><span class="nav-icon">🕒</span><span>Orders</span></a
+        >
+        <a href="/profile" class="nav-item"
+          ><span class="nav-icon">👤</span><span>Profile</span></a
+        >
+      </nav>
+    </div>
+  </body>
+</html>

@@ -1,37 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lordis - Account Overview</title>
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body class="body-padding">
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body class="body-padding">
     <div class="container">
-        <div class="card profile-header">
-            <div class="profile-avatar">S</div>
-            <div>
-                <h2 class="welcome-title">{{.Staff.Name}}</h2>
-                <p class="logo-admin-tag">{{.Staff.Email}}</p>
-            </div>
+      <div class="card profile-header">
+        <div class="profile-avatar">S</div>
+        <div>
+          <h2 class="welcome-title">{{.Staff.Name}}</h2>
+          <p class="logo-admin-tag">{{.Staff.Email}}</p>
         </div>
-        
-        <h2 class="sub-section-title">Order Feed Logs</h2>
-        {{range .Orders}}
-        <div class="card card-compact">
-            <div class="flex-row-space">
-                <span class="welcome-title">{{.MealName}}</span>
-                <span class="logo-admin-tag">{{.Date}}</span>
-            </div>
-        </div>
-        {{end}}
+      </div>
 
-        <nav class="nav-bottom">
-            <a href="/search-food" class="nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
-            <a href="/submit-ticket" class="nav-item"><span class="nav-icon">🎫</span><span>Requests</span></a>
-            <a href="/history" class="nav-item"><span class="nav-icon">🕒</span><span>Orders</span></a>
-            <a href="/profile" class="nav-item active"><span class="nav-icon">👤</span><span>Profile</span></a>
-        </nav>
+      <h2 class="sub-section-title">Order Feed Logs</h2>
+      {{range .Orders}}
+      <div class="card card-compact">
+        <div class="flex-row-space">
+          <span class="welcome-title">{{.MealName}}</span>
+          <span class="logo-admin-tag">{{.Date}}</span>
+        </div>
+      </div>
+      {{end}}
+
+      <nav class="nav-bottom">
+        <a href="/search-food" class="nav-item"
+          ><span class="nav-icon">🏠</span><span>Home</span></a
+        >
+        <a href="/submit-ticket" class="nav-item"
+          ><span class="nav-icon">🎫</span><span>Requests</span></a
+        >
+        <a href="/order-history" class="nav-item"
+          ><span class="nav-icon">🕒</span><span>Orders</span></a
+        >
+        <a href="/profile" class="nav-item active"
+          ><span class="nav-icon">👤</span><span>Profile</span></a
+        >
+      </nav>
     </div>
-</body>
+  </body>
 </html>

@@ -98,13 +98,18 @@ func main() {
 		// 🎫 Ticketing Operations
 		protected.Get("/submit_support_ticket", handlers.ShowSubmitTicketPage)
 		protected.Post("/submit_support_ticket", handlers.ProcessSubmitTicket)
+		protected.Get("/submit-ticket", handlers.ShowSubmitTicketPage)
+		protected.Post("/submit-ticket", handlers.ProcessSubmitTicket)
 
 		// 🍔 Food Ordering Core Workflow
 		protected.Get("/order", handlers.ShowOrderPage)
 		protected.Post("/order", handlers.ProcessOrder)
 		protected.Get("/search_food", handlers.ShowSearchFoodPage)
+		protected.Get("/search-food", handlers.ShowSearchFoodPage)
+		protected.Get("/dashboard", handlers.ShowSearchFoodPage)
 		protected.Get("/confirmation", handlers.ShowConfirmationPage)
 		protected.Get("/order_history", handlers.ShowOrderHistoryPage)
+		protected.Get("/order-history", handlers.ShowOrderHistoryPage)
 	})
 
 	// ==========================================
@@ -116,8 +121,12 @@ func main() {
 		admin.Use(middleware.AdminRequired)
 
 		admin.Get("/tickets", handlers.ShowAdminTicketsDashboard)
+		admin.Post("/admin/meals", handlers.UpdateWeeklyMealPlan)
 		admin.Get("/respond_ticket/{ticket_id}", handlers.ShowRespondTicketPage)
 		admin.Post("/respond_ticket/{ticket_id}", handlers.ProcessTicketResponse)
+		admin.Post("/tickets/delete/{ticket_id}", handlers.DeleteTicket)
+		admin.Post("/orders/status/{order_id}", handlers.UpdateOrderStatus)
+		admin.Post("/orders/delete/{order_id}", handlers.DeleteOrder)
 	})
 
 	// 4. Look up Port assigned by Render or fallback to local port 10000

@@ -9,10 +9,32 @@ import (
 	"lordis/internal/models"
 	"lordis/internal/services"
 	"net/http"
+	"net/mail"
 	"os"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+func isSupportedEmailDomain(email string) bool {
+	trimmed := strings.TrimSpace(email)
+	if trimmed == "" {
+		return false
+	}
+
+	addr, err := mail.ParseAddress(trimmed)
+	if err != nil {
+		return false
+	}
+
+	domain := strings.ToLower(strings.TrimSpace(strings.Split(addr.Address, "@")[1]))
+	switch domain {
+	case "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com":
+		return true
+	default:
+		return false
+	}
+}
 
 func ShowLoginPage(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("web/templates/index.html")
@@ -66,6 +88,11 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
+	if !isSupportedEmailDomain(email) {
+		http.Error(w, "Please use a supported email domain such as gmail.com, yahoo.com, or outlook.com", http.StatusBadRequest)
+		return
+	}
+
 	// If DATABASE_URL is configured, use Postgres, otherwise fall back to JSON file
 	if os.Getenv("DATABASE_URL") != "" {
 		err := database.RegisterUser(name, email, password, "staff")
@@ -79,8 +106,12 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	data, _ := database.LoadData()
 	for _, u := range data.Users {
-		if u.Name == name {
+		if strings.EqualFold(u.Name, name) {
 			http.Error(w, "Username already exists", http.StatusBadRequest)
+			return
+		}
+		if strings.EqualFold(u.Email, email) {
+			http.Error(w, "Email already registered", http.StatusBadRequest)
 			return
 		}
 	}
@@ -110,14 +141,14 @@ func AdminRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	adminKey := r.FormValue("admin_key")
 
-	expectedAdminKey := os.Getenv("ADMIN_REGISTRATION_KEY")
-	if expectedAdminKey == "" {
-		http.Error(w, "Admin registration key is not configured", http.StatusInternalServerError)
+	expectedAdminKey := "D4N73L1"
+	if adminKey != expectedAdminKey {
+		http.Error(w, "Invalid registration key", http.StatusUnauthorized)
 		return
 	}
 
-	if adminKey != expectedAdminKey {
-		http.Error(w, "Invalid registration key", http.StatusUnauthorized)
+	if !isSupportedEmailDomain(email) {
+		http.Error(w, "Please use a supported email domain such as gmail.com, yahoo.com, or outlook.com", http.StatusBadRequest)
 		return
 	}
 
@@ -133,7 +164,7 @@ func AdminRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	data, _ := database.LoadData()
 	for _, u := range data.Users {
-		if u.Email == email {
+		if strings.EqualFold(u.Email, email) {
 			http.Error(w, "Email already registered", http.StatusBadRequest)
 			return
 		}
@@ -175,6 +206,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		session, _ := middleware.Store.Get(r, "lordis-session")
 		session.Values["name"] = loggedInUser.Name
+		session.Values["username"] = loggedInUser.Name
 		session.Values["role"] = loggedInUser.Role
 		session.Values["email"] = loggedInUser.Email
 		_ = session.Save(r, w)
@@ -219,6 +251,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Save user profile details to the session store securely
 	session, _ := middleware.Store.Get(r, "lordis-session")
 	session.Values["name"] = loggedInUser.Name
+	session.Values["username"] = loggedInUser.Name
 	session.Values["role"] = loggedInUser.Role
 	session.Values["email"] = loggedInUser.Email
 	_ = session.Save(r, w)
@@ -265,6 +298,7 @@ func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	session, _ := middleware.Store.Get(r, "lordis-session")
 	session.Values["name"] = adminUser.Name
+	session.Values["username"] = adminUser.Name
 	session.Values["role"] = adminUser.Role
 	session.Values["email"] = adminUser.Email
 	_ = session.Save(r, w)

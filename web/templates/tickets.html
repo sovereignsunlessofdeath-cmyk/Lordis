@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lordis - Admin Control Center</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body class="body-padding">
+    <div class="container">
+      <div class="logo-left">
+        <span class="logo-text">Admin Control Center</span>
+        <p class="logo-admin-tag">
+          Manage requests, review orders, update weekly meals, and monitor logs.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2 class="welcome-title">Weekly Meal Plan</h2>
+        <form action="/admin/meals" method="POST">
+          <div class="input-group">
+            <label for="meal-plan">Food available for the week</label>
+            <textarea
+              id="meal-plan"
+              name="meal_plan"
+              rows="5"
+              placeholder="One item per line"
+            >
+{{range .Menu}}{{.}}
+{{end}}</textarea
+            >
+          </div>
+          <button type="submit" class="btn-primary">
+            Save Weekly Meal Plan
+          </button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2 class="welcome-title">Pending Requests</h2>
+        {{range .Tickets}}
+        <div class="card card-compact">
+          <div class="flex-row-space">
+            <strong>{{.Name}}</strong>
+            <span class="text-red">{{.Status}}</span>
+          </div>
+          <p>{{.Category}} • {{.Description}}</p>
+          <p class="logo-admin-tag">{{.SubmittedEmail}}</p>
+          <a href="/respond_ticket/{{.ID}}" class="link-action"
+            >Reply and Send</a
+          >
+        </div>
+        {{else}}
+        <p class="logo-admin-tag">No requests yet.</p>
+        {{end}}
+      </div>
+
+      <div class="card">
+        <h2 class="welcome-title">Logs and History</h2>
+        <p class="logo-admin-tag">
+          Review tickets and meal requests. Delete any log entry that is no
+          longer needed.
+        </p>
+
+        <h3 class="welcome-title">Order Requests</h3>
+        {{range .Orders}}
+        <div class="card card-compact">
+          <div class="flex-row-space">
+            <strong>{{.Name}}</strong>
+            <span class="text-red">{{.Status}}</span>
+          </div>
+          <p>{{.Day}} • {{.Meal}}</p>
+          <p class="logo-admin-tag">{{.Email}}</p>
+          <form
+            action="/orders/status/{{.ID}}"
+            method="POST"
+            style="display: inline-block; margin-top: 8px"
+          >
+            <select name="status">
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Declined">Declined</option>
+            </select>
+            <button type="submit" class="btn-primary btn-compact">
+              Update
+            </button>
+          </form>
+          <form
+            action="/orders/delete/{{.ID}}"
+            method="POST"
+            style="display: inline-block; margin-top: 8px"
+          >
+            <button type="submit" class="btn-primary btn-compact">
+              Delete
+            </button>
+          </form>
+        </div>
+        {{else}}
+        <p class="logo-admin-tag">No orders yet.</p>
+        {{end}}
+
+        <h3 class="welcome-title">Ticket Logs</h3>
+        {{range .Tickets}}
+        <div class="card card-compact">
+          <div class="flex-row-space">
+            <strong>{{.Name}}</strong>
+            <span class="text-red">{{.Status}}</span>
+          </div>
+          <p>{{.Category}} • {{.Description}}</p>
+          <p class="logo-admin-tag">{{.SubmittedEmail}}</p>
+          <form
+            action="/tickets/delete/{{.ID}}"
+            method="POST"
+            style="display: inline-block; margin-top: 8px"
+          >
+            <button type="submit" class="btn-primary btn-compact">
+              Delete Log
+            </button>
+          </form>
+        </div>
+        {{else}}
+        <p class="logo-admin-tag">No ticket logs yet.</p>
+        {{end}}
+      </div>
+    </div>
+  </body>
+</html>
