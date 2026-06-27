@@ -71,13 +71,9 @@
           </div>
           <p>{{.Day}} • {{.Meal}}</p>
           <p class="logo-admin-tag">{{.Email}}</p>
-          <form
-            action="/orders/status/{{.ID}}"
-            method="POST"
-            style="display: inline-block; margin-top: 8px"
-          >
-            <select name="status">
-              <option value="Pending">Pending</option>
+ <<form 
+ action="/orders/status/{{.ID}}" method="POST" class="order-status-form">
+            <select name="status" aria-label="Update Order Status" title="Update Order Status">on>
               <option value="Confirmed">Confirmed</option>
               <option value="Declined">Declined</option>
             </select>
@@ -85,12 +81,9 @@
               Update
             </button>
           </form>
-          <form
-            action="/orders/delete/{{.ID}}"
-            method="POST"
-            style="display: inline-block; margin-top: 8px"
-          >
-            <button type="submit" class="btn-primary btn-compact">
+
+          <form action="/orders/delete/{{.ID}}" method="POST" class="order-delete-form">
+            <button type="submit" class="btn-primary btn-compact btn-danger">
               Delete
             </button>
           </form>
@@ -108,7 +101,28 @@
           </div>
           <p>{{.Category}} • {{.Description}}</p>
           <p class="logo-admin-tag">{{.SubmittedEmail}}</p>
-          <form
+          ```
+
+---
+
+### 2. The Updated CSS Fix (`web/static/css/style.css`)
+Add these style declarations to the bottom of your stylesheet to keep both forms beautifully aligned side-by-side without using inline styling:
+
+```css
+/* Layout rules for status updating and delete forms */
+.order-status-form,
+.order-delete-form {
+    display: inline-block;
+    margin-top: 8px;
+}
+
+/* Optional: Gives your delete button a distinct red tint for safety */
+.btn-danger {
+    background-color: #ef4444;
+}
+.btn-danger:hover {
+    background-color: #dc2626;
+}
             action="/tickets/delete/{{.ID}}"
             method="POST"
             style="display: inline-block; margin-top: 8px"
