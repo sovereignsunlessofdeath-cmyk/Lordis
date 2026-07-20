@@ -71,16 +71,16 @@
           </div>
           <p>{{.Day}} • {{.Meal}}</p>
           <p class="logo-admin-tag">{{.Email}}</p>
- <<form 
- action="/orders/status/{{.ID}}" method="POST" class="order-status-form">
-            <select name="status" aria-label="Update Order Status" title="Update Order Status">on>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Declined">Declined</option>
-            </select>
-            <button type="submit" class="btn-primary btn-compact">
-              Update
-            </button>
-          </form>
+<form action="/orders/status/{{.ID}}" method="POST" class="order-status-form">
+  <select name="status" aria-label="Update Order Status" title="Update Order Status">
+    <option value="Pending">Pending</option>
+    <option value="Confirmed">Confirmed</option>
+    <option value="Declined">Declined</option>
+  </select>
+  <button type="submit" class="btn-primary btn-compact">
+    Update
+  </button>
+</form>
 
           <form action="/orders/delete/{{.ID}}" method="POST" class="order-delete-form">
             <button type="submit" class="btn-primary btn-compact btn-danger">

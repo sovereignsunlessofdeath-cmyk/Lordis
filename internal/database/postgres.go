@@ -19,16 +19,17 @@ var DB *sql.DB
 func Connect() error {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		return fmt.Errorf("DATABASE_URL not set")
+		// Fallback for local testing if .env isn't loaded
+		dsn = "postgres://postgres:Dammy123@localhost:5432/postgres?sslmode=disable"
 	}
 
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
-		return err
+		return fmt.Errorf("sql.Open failed: %w", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		return err
+		return fmt.Errorf("db.Ping failed: %w", err)
 	}
 
 	DB = db
