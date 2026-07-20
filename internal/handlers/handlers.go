@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	
+	"fmt"
 	"net/http"
 	"net/mail"
 	"strings"
@@ -55,28 +55,27 @@ func addUserNotification(data *models.AppData, userEmail, title, message string)
 }
 
 func isSupportedEmailDomain(email string) bool {
-    trimmed := strings.TrimSpace(email)
-    if trimmed == "" {
-        return false
-    }
+	trimmed := strings.TrimSpace(email)
+	addr, err := mail.ParseAddress(trimmed)
+	if err != nil {
+		return false
+	}
 
-    addr, err := mail.ParseAddress(trimmed)
-    if err != nil {
-        return false
-    }
+	// Split and debug
+	parts := strings.Split(addr.Address, "@")
+	if len(parts) < 2 {
+		return false
+	}
 
-    // FIX: Split returns a slice, we need index 1 for the domain
-    parts := strings.Split(addr.Address, "@")
-    if len(parts) != 2 {
-        return false
-    }
-    
-    domain := strings.ToLower(strings.TrimSpace(parts[1]))
-    
-    switch domain {
-    case "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com":
-        return true
-    default:
-        return false
-    }
+	domain := strings.ToLower(strings.TrimSpace(parts[1]))
+
+	// DEBUG: This will print to your terminal window where the server is running
+	fmt.Printf("DEBUG: Extracted domain: %q\n", domain)
+
+	switch domain {
+	case "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com":
+		return true
+	default:
+		return false
+	}
 }
