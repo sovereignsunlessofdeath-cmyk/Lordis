@@ -55,21 +55,28 @@ func addUserNotification(data *models.AppData, userEmail, title, message string)
 }
 
 func isSupportedEmailDomain(email string) bool {
-	trimmed := strings.TrimSpace(email)
-	if trimmed == "" {
-		return false
-	}
+    trimmed := strings.TrimSpace(email)
+    if trimmed == "" {
+        return false
+    }
 
-	addr, err := mail.ParseAddress(trimmed)
-	if err != nil {
-		return false
-	}
+    addr, err := mail.ParseAddress(trimmed)
+    if err != nil {
+        return false
+    }
 
-	domain := strings.ToLower(strings.TrimSpace(strings.Split(addr.Address, "@")[1]))
-	switch domain {
-	case "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com":
-		return true
-	default:
-		return false
-	}
+    // FIX: Split returns a slice, we need index 1 for the domain
+    parts := strings.Split(addr.Address, "@")
+    if len(parts) != 2 {
+        return false
+    }
+    
+    domain := strings.ToLower(strings.TrimSpace(parts[1]))
+    
+    switch domain {
+    case "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com":
+        return true
+    default:
+        return false
+    }
 }
