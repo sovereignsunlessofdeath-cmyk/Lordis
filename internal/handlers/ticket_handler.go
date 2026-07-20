@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -59,9 +60,18 @@ func (h *Handler) ProcessSubmitTicket(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data.Tickets = append(data.Tickets, newTicket)
-	_ = database.SaveData(data)
 
-	http.Redirect(w, r, "/history?submitted=true", http.StatusSeeOther)
+	// CHANGE THIS:
+	// err = database.SaveData(data)
+
+	// TO THIS:
+	err := database.SaveData(data)
+
+	if err != nil {
+		fmt.Printf("DEBUG: Critical database save error: %v\n", err)
+		http.Error(w, "Internal Server Error: Database failure", http.StatusInternalServerError)
+		return
+	}
 }
 
 func ShowAdminTicketsDashboard(w http.ResponseWriter, r *http.Request) {
