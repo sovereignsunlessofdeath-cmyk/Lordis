@@ -77,11 +77,11 @@ type AdminDashboardData struct {
 	Tickets       []Ticket
 }
 
-// Example missing view model
+// Example missing view model.
 type PageData struct {
-    Title         string
-    User          User
-    Notifications []Notification
-    Error         string
-    Success       string
+	Title         string
+	User          User
+	Notifications []Notification
+	Error         string
+	Success       string
 }
