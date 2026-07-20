@@ -21,6 +21,7 @@ func ShowSubmitTicketPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) ProcessSubmitTicket(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("DEBUG: ProcessSubmitTicket triggered")
 	username, userEmail, _ := h.getUserFromSession(r)
 	if username == "" {
 		http.Error(w, "Unable to identify the active user session", http.StatusUnauthorized)
@@ -61,17 +62,14 @@ func (h *Handler) ProcessSubmitTicket(w http.ResponseWriter, r *http.Request) {
 
 	data.Tickets = append(data.Tickets, newTicket)
 
-	// CHANGE THIS:
-	// err = database.SaveData(data)
-
-	// TO THIS:
 	err := database.SaveData(data)
-
 	if err != nil {
-		fmt.Printf("DEBUG: Critical database save error: %v\n", err)
-		http.Error(w, "Internal Server Error: Database failure", http.StatusInternalServerError)
+		fmt.Printf("DEBUG: CRITICAL SAVE ERROR: %v\n", err) // This will print to your terminal
+		http.Error(w, "Database save failed", http.StatusInternalServerError)
 		return
 	}
+
+	http.Redirect(w, r, "/history?submitted=true", http.StatusSeeOther)
 }
 
 func ShowAdminTicketsDashboard(w http.ResponseWriter, r *http.Request) {
