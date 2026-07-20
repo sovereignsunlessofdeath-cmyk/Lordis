@@ -6,40 +6,70 @@
     <title>Lordis Admin - Authorize Request</title>
     <link rel="stylesheet" href="/static/css/style.css" />
   </head>
-  <body>
+  <body class="body-padding">
     <div class="container">
       <div class="logo-container">
-        <span class="logo-text">Action File #{{.ID}}</span>
+        <div class="logo-badge">
+          LORD<span class="logo-red">IS</span>
+          <span class="logo-admin-tag">ADMIN</span>
+        </div>
+        <p class="sub-section-title" style="margin-top: 8px; margin-bottom: 0;">
+          Action File #{{.ID}}
+        </p>
       </div>
+
       <div class="card">
-        <p><strong>Employee:</strong> {{.Name}}</p>
-        <p><strong>Log Type:</strong> {{.Category}}</p>
-        <div class="alert-error">{{.Description}}</div>
+        <h1>Authorize Request</h1>
+        <p>Review details and commit an administrative decision below.</p>
+
+        <div style="background-color: var(--gray-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--gray-border); margin-bottom: 20px;">
+          <p style="margin-bottom: 6px;"><strong>Employee:</strong> {{.Name}}</p>
+          <p style="margin-bottom: 6px;"><strong>Log Type:</strong> {{.Category}}</p>
+          <p style="margin-bottom: 12px;"><strong>Submitted By:</strong> {{.SubmittedEmail}}</p>
+          
+          <div style="border-top: 1px dashed var(--gray-border); padding-top: 10px; margin-top: 10px;">
+            <p style="font-weight: 600; color: var(--black); margin-bottom: 4px;">Description / Details:</p>
+            <p style="margin-bottom: 0; white-space: pre-wrap;">{{.Description}}</p>
+          </div>
+        </div>
+
         <form action="/respond_ticket/{{.ID}}" method="POST">
           <input type="hidden" name="ticket_id" value="{{.ID}}" />
+
           <div class="input-group">
             <label for="status">Administrative Decision</label>
             <select id="status" name="status" required>
-              <option value="Approved / Authorized">Approve / Authorize</option>
-              <option value="Declined / Deferred">Decline / Defer</option>
-              <option value="Under Review">Hold For Review</option>
+              <option value="Approved / Authorized" {{if eq .Status "Approved / Authorized"}}selected{{end}}>
+                Approve / Authorize
+              </option>
+              <option value="Declined / Deferred" {{if eq .Status "Declined / Deferred"}}selected{{end}}>
+                Decline / Defer
+              </option>
+              <option value="Under Review" {{if eq .Status "Under Review"}}selected{{end}}>
+                Hold For Review
+              </option>
             </select>
           </div>
+
           <div class="input-group">
             <label for="message">Official Directives / Remarks</label>
             <textarea
               id="message"
               name="message"
               rows="4"
-              placeholder="Enter gate conditions..."
+              placeholder="Enter gate conditions or directives..."
               required
-            ></textarea>
+            >{{.AdminRemarks}}</textarea>
           </div>
+
           <button type="submit" class="btn-primary">Commit Decision</button>
         </form>
+
         <hr class="divider" />
-        <a href="/tickets" class="link-action">Back to Request Feed</a>
+        <a href="/tickets" class="link-action">&larr; Back to Request Feed</a>
       </div>
     </div>
+
+    <script src="/static/js/main.js"></script>
   </body>
 </html>

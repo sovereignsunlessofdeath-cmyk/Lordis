@@ -2,16 +2,15 @@ package handlers
 
 import (
 	"html/template"
-	"lordis/internal/database"
-	"lordis/internal/middleware"
-	"lordis/internal/models"
-	"lordis/internal/services"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+
+	"lordis/internal/database"
+	"lordis/internal/models"
 )
 
 func ShowSubmitTicketPage(w http.ResponseWriter, r *http.Request) {
@@ -20,28 +19,42 @@ func ShowSubmitTicketPage(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, data)
 }
 
-func ProcessSubmitTicket(w http.ResponseWriter, r *http.Request) {
-	session, _ := middleware.Store.Get(r, "lordis-session")
-	username, _ := session.Values["name"].(string)
-	if username == "" {
-		username, _ = session.Values["username"].(string)
-	}
-	userEmail, _ := session.Values["email"].(string)
+func (h *Handler) ProcessSubmitTicket(w http.ResponseWriter, r *http.Request) {
+	username, userEmail, _ := h.getUserFromSession(r)
 	if username == "" {
 		http.Error(w, "Unable to identify the active user session", http.StatusUnauthorized)
 		return
 	}
 
-	data, _ := database.LoadData()
-	newID := len(data.Tickets) + 1
+	department := r.FormValue("department")
+	category := r.FormValue("category")
+	description := r.FormValue("description")
 
+	// Postgres Service Pipeline
+	if h != nil && h.TicketService != nil {
+		_, err := h.TicketService.Create(models.Ticket{
+			Name:           username,
+			SubmittedEmail: userEmail,
+			Department:     department,
+			Category:       category,
+			Description:    description,
+			Status:         "Pending",
+		})
+		if err == nil {
+			http.Redirect(w, r, "/history?submitted=true", http.StatusSeeOther)
+			return
+		}
+	}
+
+	// Legacy File Storage Pipeline
+	data, _ := database.LoadData()
 	newTicket := models.Ticket{
-		ID:             newID,
+		ID:             len(data.Tickets) + 1,
 		Name:           username,
 		SubmittedEmail: userEmail,
-		Department:     r.FormValue("department"),
-		Category:       r.FormValue("category"),
-		Description:    r.FormValue("description"),
+		Department:     department,
+		Category:       category,
+		Description:    description,
 		Status:         "Pending",
 	}
 
@@ -49,17 +62,6 @@ func ProcessSubmitTicket(w http.ResponseWriter, r *http.Request) {
 	_ = database.SaveData(data)
 
 	http.Redirect(w, r, "/history?submitted=true", http.StatusSeeOther)
-}
-
-func addUserNotification(data *models.AppData, userEmail, title, message string) {
-	data.Notifications = append(data.Notifications, models.Notification{
-		ID:        len(data.Notifications) + 1,
-		UserEmail: userEmail,
-		Title:     title,
-		Message:   message,
-		CreatedAt: time.Now().Format(time.RFC3339),
-		IsRead:    false,
-	})
 }
 
 func ShowAdminTicketsDashboard(w http.ResponseWriter, r *http.Request) {
@@ -86,18 +88,20 @@ func UpdateOrderStatus(w http.ResponseWriter, r *http.Request) {
 	orderID, _ := strconv.Atoi(chi.URLParam(r, "order_id"))
 	status := strings.TrimSpace(r.FormValue("status"))
 	data, _ := database.LoadData()
+
 	for i, order := range data.Orders {
 		if order.ID == orderID {
 			data.Orders[i].Status = status
+
+			notifTitle := "Order #" + strconv.Itoa(orderID) + " Status: " + status
+			notifMsg := "Your meal request status has been updated to " + status + "."
+			addUserNotification(&data, order.Email, notifTitle, notifMsg)
+
 			_ = database.SaveData(data)
-			addUserNotification(&data, order.Email, "Order update", "Your meal order status is now "+status)
-			_ = database.SaveData(data)
-			if order.Email != "" {
-				go services.SendBrevoEmail(order.Email, orderID, status, "Your meal request status is now "+status)
-			}
 			break
 		}
 	}
+
 	http.Redirect(w, r, "/tickets?updated=true", http.StatusSeeOther)
 }
 
@@ -148,26 +152,40 @@ func ShowRespondTicketPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if targetTicket == nil {
+		http.Error(w, "Ticket not found", http.StatusNotFound)
+		return
+	}
+
 	tmpl, _ := template.ParseFiles("web/templates/respond_ticket.html")
 	tmpl.Execute(w, targetTicket)
 }
 
-func ProcessTicketResponse(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ProcessTicketResponse(w http.ResponseWriter, r *http.Request) {
 	ticketID, _ := strconv.Atoi(chi.URLParam(r, "ticket_id"))
 	status := strings.TrimSpace(r.FormValue("status"))
 	message := strings.TrimSpace(r.FormValue("message"))
+
+	if h != nil && h.TicketService != nil {
+		now := time.Now()
+		err := h.TicketService.UpdateStatus(ticketID, status, message, &now)
+		if err == nil {
+			http.Redirect(w, r, "/tickets?updated=true", http.StatusSeeOther)
+			return
+		}
+	}
 
 	data, _ := database.LoadData()
 	for i, t := range data.Tickets {
 		if t.ID == ticketID {
 			data.Tickets[i].Status = status
 			data.Tickets[i].Reply = message
-			_ = database.SaveData(data)
 
-			addUserNotification(&data, t.SubmittedEmail, "Admin reply received", message)
-			_ = database.SaveData(data)
+			notifTitle := "Ticket #" + strconv.Itoa(ticketID) + " Updated (" + status + ")"
+			notifMsg := "Status: " + status + "\nAdmin Directives: " + message
+			addUserNotification(&data, t.SubmittedEmail, notifTitle, notifMsg)
 
-			go services.SendBrevoEmail(t.SubmittedEmail, ticketID, status, message)
+			_ = database.SaveData(data)
 			break
 		}
 	}
@@ -175,21 +193,42 @@ func ProcessTicketResponse(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/tickets?updated=true", http.StatusSeeOther)
 }
 
-func ShowHistoryPage(w http.ResponseWriter, r *http.Request) {
-	session, _ := middleware.Store.Get(r, "lordis-session")
-	username, _ := session.Values["name"].(string)
-	if username == "" {
-		username, _ = session.Values["username"].(string)
-	}
+func (h *Handler) ShowHistoryPage(w http.ResponseWriter, r *http.Request) {
+	username, userEmail, _ := h.getUserFromSession(r)
 
 	data, _ := database.LoadData()
+
 	var userTickets []models.Ticket
 	for _, t := range data.Tickets {
-		if t.Name == username {
+		if t.Name == username || t.SubmittedEmail == userEmail {
 			userTickets = append(userTickets, t)
 		}
 	}
 
+	var userOrders []models.OrderRequest
+	for _, o := range data.Orders {
+		if o.Email == userEmail {
+			userOrders = append(userOrders, o)
+		}
+	}
+
+	var userNotifs []models.Notification
+	for _, n := range data.Notifications {
+		if n.UserEmail == userEmail && !n.IsRead {
+			userNotifs = append(userNotifs, n)
+		}
+	}
+
+	viewData := struct {
+		Tickets       []models.Ticket
+		Orders        []models.OrderRequest
+		Notifications []models.Notification
+	}{
+		Tickets:       userTickets,
+		Orders:        userOrders,
+		Notifications: userNotifs,
+	}
+
 	tmpl, _ := template.ParseFiles("web/templates/history.html")
-	tmpl.Execute(w, userTickets)
+	tmpl.Execute(w, viewData)
 }

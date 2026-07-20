@@ -124,3 +124,73 @@ func AuthenticateUser(email, password string) (models.User, bool, error) {
 	u.Password = ""
 	return u, true, nil
 }
+
+// GetAdminDashboardStats loads counts and records tailored for the admin interface.
+func GetAdminDashboardStats(adminEmail string) (models.AdminDashboardData, error) {
+	var data models.AdminDashboardData
+	data.AdminEmail = adminEmail
+
+	if DB == nil {
+		return data, fmt.Errorf("DB not connected")
+	}
+
+	// 1. Fetch KPI counts
+	_ = DB.QueryRow(`SELECT COUNT(*) FROM orders`).Scan(&data.TotalOrders)
+	_ = DB.QueryRow(`SELECT COUNT(*) FROM orders WHERE status = 'Pending'`).Scan(&data.PendingOrders)
+	_ = DB.QueryRow(`SELECT COUNT(*) FROM tickets WHERE status = 'Open'`).Scan(&data.OpenTickets)
+
+	// 2. Fetch Orders list using OrderRequest model
+	rows, err := DB.Query(`SELECT id, COALESCE(name, ''), email, COALESCE(day, ''), COALESCE(meal, ''), status FROM orders ORDER BY id DESC`)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var o models.OrderRequest
+			if err := rows.Scan(&o.ID, &o.Name, &o.Email, &o.Day, &o.Meal, &o.Status); err == nil {
+				o.StatusClass = o.Status
+				data.Orders = append(data.Orders, o)
+			}
+		}
+	}
+
+	// 3. Fetch Tickets list
+	tRows, err := DB.Query(`SELECT id, COALESCE(name, ''), submitted_email, COALESCE(category, ''), COALESCE(description, ''), status FROM tickets ORDER BY id DESC`)
+	if err == nil {
+		defer tRows.Close()
+		for tRows.Next() {
+			var t models.Ticket
+			if err := tRows.Scan(&t.ID, &t.Name, &t.SubmittedEmail, &t.Category, &t.Description, &t.Status); err == nil {
+				t.StatusClass = t.Status
+				data.Tickets = append(data.Tickets, t)
+			}
+		}
+	}
+
+	return data, nil
+}
+
+// UpdateOrderStatus updates status for an order record
+func UpdateOrderStatus(orderID int, status string) error {
+	if DB == nil {
+		return fmt.Errorf("DB not connected")
+	}
+	_, err := DB.Exec(`UPDATE orders SET status = $1 WHERE id = $2`, status, orderID)
+	return err
+}
+
+// DeleteOrder removes an order record by ID
+func DeleteOrder(orderID int) error {
+	if DB == nil {
+		return fmt.Errorf("DB not connected")
+	}
+	_, err := DB.Exec(`DELETE FROM orders WHERE id = $1`, orderID)
+	return err
+}
+
+// UpdateTicketStatus updates the resolution status of a ticket
+func UpdateTicketStatus(ticketID int, status string) error {
+	if DB == nil {
+		return fmt.Errorf("DB not connected")
+	}
+	_, err := DB.Exec(`UPDATE tickets SET status = $1 WHERE id = $2`, status, ticketID)
+	return err
+}

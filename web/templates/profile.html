@@ -8,51 +8,69 @@
   </head>
   <body class="body-padding">
     <div class="container">
-      <div class="logo-left"><span class="logo-text">My Account</span></div>
+      <div class="logo-left">
+        <span class="logo-text">LORD<span class="logo-red">IS</span></span>
+      </div>
+
       <div class="card profile-header">
-        <div class="profile-avatar">S</div>
+        <div class="profile-avatar">
+          {{if .Staff.Name}}{{printf "%.1s" .Staff.Name}}{{else}}U{{end}}
+        </div>
         <div>
-          <h2 class="welcome-title">{{.Staff.Name}}</h2>
-          <p class="logo-admin-tag">{{.Staff.Email}}</p>
+          <h2 class="welcome-title" style="margin-bottom: 2px;">{{.Staff.Name}}</h2>
+          <p style="margin-bottom: 0; font-size: 13px; color: var(--text-muted);">{{.Staff.Email}}</p>
         </div>
       </div>
+
       <div class="profile-banner">
         <span>Duty Status</span>
         <strong>Active On-Site</strong>
         <span>Verified Faculty Staff Account</span>
       </div>
+
       <div class="card profile-options">
-        <div class="card card-compact">
-          <h3 class="welcome-title">Notifications</h3>
-          {{range .Notifications}}
-          <div class="card card-compact">
-            <strong>{{.Title}}</strong>
-            <p class="logo-admin-tag">{{.Message}}</p>
-            <span class="logo-admin-tag">{{.CreatedAt}}</span>
-          </div>
-          {{else}}
-          <p class="logo-admin-tag">No notifications yet.</p>
-          {{end}}
+        <h3 class="welcome-title">Notifications</h3>
+        
+        {{range .Notifications}}
+        <div class="card card-compact" style="margin-top: 10px;">
+          <strong style="color: var(--black); font-size: 14px;">{{.Title}}</strong>
+          <p style="margin: 4px 0 8px 0; font-size: 13px; color: var(--text-muted);">{{.Message}}</p>
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">{{.CreatedAt}}</span>
         </div>
+        {{else}}
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 0; margin-top: 8px;">
+          No notifications yet.
+        </p>
+        {{end}}
+
         <hr class="divider" />
-        <a href="/logout" class="link-action flex-row-space text-red">
-          <span class="link-bold">🚪 Logout</span><span>→</span>
+        
+        <a href="/logout" class="link-action flex-row-space text-red" style="text-decoration: none;">
+          <span class="link-bold">🚪 Logout</span>
+          <span>&rarr;</span>
         </a>
       </div>
+
       <nav class="nav-bottom">
-        <a href="/search-food" class="nav-item"
-          ><span class="nav-icon">🏠</span><span>Home</span></a
-        >
-        <a href="/submit-ticket" class="nav-item"
-          ><span class="nav-icon">🎫</span><span>Requests</span></a
-        >
-        <a href="/order-history" class="nav-item"
-          ><span class="nav-icon">🕒</span><span>Orders</span></a
-        >
-        <a href="/profile" class="nav-item active"
-          ><span class="nav-icon">👤</span><span>Profile</span></a
-        >
+        <a href="/search-food" class="nav-item">
+          <span class="nav-icon">🏠</span>
+          <span>Home</span>
+        </a>
+        <a href="/submit-ticket" class="nav-item">
+          <span class="nav-icon">🎫</span>
+          <span>Requests</span>
+        </a>
+        <a href="/order-history" class="nav-item">
+          <span class="nav-icon">🕒</span>
+          <span>Orders</span>
+        </a>
+        <a href="/profile" class="nav-item active">
+          <span class="nav-icon">👤</span>
+          <span>Profile</span>
+        </a>
       </nav>
     </div>
+
+    <script src="/static/js/main.js"></script>
   </body>
 </html>

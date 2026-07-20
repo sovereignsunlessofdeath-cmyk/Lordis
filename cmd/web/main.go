@@ -9,6 +9,8 @@ import (
 	"lordis/internal/database"
 	"lordis/internal/handlers"
 	"lordis/internal/middleware"
+	"lordis/internal/repository"
+	"lordis/internal/services"
 
 	"github.com/joho/godotenv"
 
@@ -63,14 +65,27 @@ func main() {
 		}
 	}
 
+	// 4. Instantiate Repositories, Services, and Handlers
+	// (Wire up your services here; pass nil if relying on JSON fallback/default setup)
+	authRepo := repository.NewAuthRepo(database.DB)
+	ticketRepo := repository.NewTicketRepo(database.DB)
+	orderRepo := repository.NewOrderRepo(database.DB)
+	notifRepo := repository.NewNotificationRepo(database.DB)
+
+	authService := services.NewAuthService(authRepo, notifRepo)
+	ticketService := services.NewTicketService(ticketRepo, notifRepo)
+	orderService := services.NewOrderService(orderRepo, notifRepo)
+
+	h := handlers.NewHandler(authService, ticketService, orderService, notifRepo)
+
 	// ==========================================
 	// 🔓 OPEN ACCESS ROUTES (No Login Required)
 	// ==========================================
 	r.Get("/", handlers.ShowLoginPage)
 	r.Get("/login", handlers.ShowLoginPage)
-	r.Post("/login", handlers.LoginHandler)
+	r.Post("/login", h.LoginHandler)
 	r.Get("/register", handlers.ShowRegisterPage)
-	r.Post("/register", handlers.RegisterHandler)
+	r.Post("/register", h.RegisterHandler)
 
 	// Password Recovery routes
 	r.Get("/forgot-password", handlers.ShowForgotPasswordPage)
@@ -81,9 +96,10 @@ func main() {
 	r.Get("/login_admin/", handlers.ShowAdminLoginPage)
 	r.Get("/admin/register", handlers.ShowAdminRegisterPage)
 	r.Get("/admin/register/", handlers.ShowAdminRegisterPage)
-	r.Post("/admin/register", handlers.AdminRegisterHandler)
-	r.Post("/admin/register/", handlers.AdminRegisterHandler)
-	r.Post("/admin/login", handlers.AdminLoginHandler)
+	r.Post("/admin/register", h.AdminRegisterHandler)
+	r.Post("/admin/register/", h.AdminRegisterHandler)
+	r.Post("/admin/login", h.AdminLoginHandler)
+
 	// ==========================================
 	// 🛡️ PROTECTED STAFF ROUTES (Login Required)
 	// ==========================================
@@ -92,18 +108,18 @@ func main() {
 		protected.Use(middleware.LoginRequired)
 
 		// Profiles and History Views
-		protected.Get("/profile", handlers.ShowProfilePage)
-		protected.Get("/history", handlers.ShowHistoryPage)
+		protected.Get("/profile", h.ShowProfilePage)
+		protected.Get("/history", h.ShowHistoryPage)
 
 		// 🎫 Ticketing Operations
 		protected.Get("/submit_support_ticket", handlers.ShowSubmitTicketPage)
-		protected.Post("/submit_support_ticket", handlers.ProcessSubmitTicket)
+		protected.Post("/submit_support_ticket", h.ProcessSubmitTicket)
 		protected.Get("/submit-ticket", handlers.ShowSubmitTicketPage)
-		protected.Post("/submit-ticket", handlers.ProcessSubmitTicket)
+		protected.Post("/submit-ticket", h.ProcessSubmitTicket)
 
 		// 🍔 Food Ordering Core Workflow
-		protected.Get("/order", handlers.ShowOrderPage)
-		protected.Post("/order", handlers.ProcessOrder)
+		protected.Get("/order", h.ShowOrderPage)
+		protected.Post("/order", h.ProcessOrder)
 		protected.Get("/search_food", handlers.ShowSearchFoodPage)
 		protected.Get("/search-food", handlers.ShowSearchFoodPage)
 		protected.Get("/dashboard", handlers.ShowSearchFoodPage)
@@ -123,13 +139,13 @@ func main() {
 		admin.Get("/tickets", handlers.ShowAdminTicketsDashboard)
 		admin.Post("/admin/meals", handlers.UpdateWeeklyMealPlan)
 		admin.Get("/respond_ticket/{ticket_id}", handlers.ShowRespondTicketPage)
-		admin.Post("/respond_ticket/{ticket_id}", handlers.ProcessTicketResponse)
+		admin.Post("/respond_ticket/{ticket_id}", h.ProcessTicketResponse)
 		admin.Post("/tickets/delete/{ticket_id}", handlers.DeleteTicket)
 		admin.Post("/orders/status/{order_id}", handlers.UpdateOrderStatus)
 		admin.Post("/orders/delete/{order_id}", handlers.DeleteOrder)
 	})
 
-	// 4. Look up Port assigned by Render or fallback to local port 10000
+	// 5. Look up Port assigned by Render or fallback to local port 10000
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "10000"

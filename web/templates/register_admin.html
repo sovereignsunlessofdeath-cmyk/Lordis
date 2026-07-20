@@ -9,20 +9,23 @@
   <body>
     <div class="container">
       <div class="logo-container">
-        <span class="logo-text"
-          >LOR<span class="text-red">DIS</span>
-          <span class="logo-admin-tag">ADMIN</span></span
-        >
+        <div class="logo-badge">
+          LORD<span class="logo-red">IS</span>
+          <span class="logo-admin-tag">ADMIN</span>
+        </div>
       </div>
+
       <div class="card">
         <h1>Admin Registration</h1>
         <p>
           Enter the admin registration key to create a new administrator
           account.
         </p>
+
         {{if .Error}}
         <div class="alert-error">{{.Error}}</div>
         {{end}}
+
         <form action="/admin/register" method="POST">
           <div class="input-group">
             <label for="name">Full Name</label>
@@ -34,6 +37,7 @@
               required
             />
           </div>
+
           <div class="input-group">
             <label for="email">Administrator Email</label>
             <input
@@ -44,6 +48,7 @@
               required
             />
           </div>
+
           <div class="input-group">
             <label for="password">Password</label>
             <input
@@ -54,6 +59,7 @@
               required
             />
           </div>
+
           <div class="input-group">
             <label for="admin_key">Admin Registration Key</label>
             <input
@@ -64,12 +70,18 @@
               required
             />
           </div>
+
           <button type="submit" class="btn-primary">Register Admin</button>
         </form>
+
         <hr class="divider" />
-        <a href="/login_admin" class="link-action">Back to Admin Login</a>
-        <a href="/login" class="link-action">Staff Login</a>
+        <div class="flex-row-space">
+          <a href="/login_admin" class="link-action">&larr; Back to Admin Login</a>
+          <a href="/login" class="link-action link-bold">Staff Login</a>
+        </div>
       </div>
     </div>
+
+    <script src="/static/js/main.js"></script>
   </body>
 </html>

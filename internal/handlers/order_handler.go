@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"html/template"
-	"lordis/internal/database"
-	"lordis/internal/middleware"
-	"lordis/internal/models"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"lordis/internal/database"
+	"lordis/internal/models"
 )
 
 type orderPageData struct {
@@ -38,11 +38,10 @@ func filterMenuItems(menu []string, query string) []string {
 	return matchedFood
 }
 
-func ShowOrderPage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ShowOrderPage(w http.ResponseWriter, r *http.Request) {
 	data, _ := database.LoadData()
 	query := r.URL.Query().Get("q")
-	session, _ := middleware.Store.Get(r, "lordis-session")
-	name, _ := session.Values["name"].(string)
+	name, _, _ := h.getUserFromSession(r)
 
 	tmpl, err := template.ParseFiles("web/templates/order.html")
 	if err != nil {
@@ -53,17 +52,14 @@ func ShowOrderPage(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, orderPageData{Menu: filterMenuItems(data.Menu, query), Query: query, Name: name})
 }
 
-func ProcessOrder(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ProcessOrder(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimSpace(r.FormValue("name"))
 	day := strings.TrimSpace(r.FormValue("day"))
 	meal := strings.TrimSpace(r.FormValue("meal"))
 
-	session, _ := middleware.Store.Get(r, "lordis-session")
-	email, _ := session.Values["email"].(string)
+	sessionName, email, _ := h.getUserFromSession(r)
 	if name == "" {
-		if sessionName, ok := session.Values["name"].(string); ok {
-			name = sessionName
-		}
+		name = sessionName
 	}
 
 	data, _ := database.LoadData()
@@ -125,21 +121,19 @@ func ShowOrderHistoryPage(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
-func ShowProfilePage(w http.ResponseWriter, r *http.Request) {
-	session, _ := middleware.Store.Get(r, "lordis-session")
-	staff := models.User{}
-	if name, ok := session.Values["name"].(string); ok {
-		staff.Name = name
-	}
-	if email, ok := session.Values["email"].(string); ok {
-		staff.Email = email
-	}
+func (h *Handler) ShowProfilePage(w http.ResponseWriter, r *http.Request) {
+	name, email, _ := h.getUserFromSession(r)
+	staff := models.User{Name: name, Email: email}
 
-	data, _ := database.LoadData()
 	var userNotifications []models.Notification
-	for _, notification := range data.Notifications {
-		if strings.EqualFold(notification.UserEmail, staff.Email) {
-			userNotifications = append(userNotifications, notification)
+	if h != nil && h.NotificationRepo != nil {
+		userNotifications, _ = h.NotificationRepo.GetByUser(email)
+	} else {
+		data, _ := database.LoadData()
+		for _, notification := range data.Notifications {
+			if strings.EqualFold(notification.UserEmail, staff.Email) {
+				userNotifications = append(userNotifications, notification)
+			}
 		}
 	}
 

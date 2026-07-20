@@ -9,19 +9,22 @@
   <body>
     <div class="container">
       <div class="logo-container">
-        <span class="logo-text"
-          >LOR<span class="text-red">DIS</span>
-          <span class="logo-admin-tag">ADMIN</span></span
-        >
+        <div class="logo-badge">
+          LORD<span class="logo-red">IS</span>
+          <span class="logo-admin-tag">ADMIN</span>
+        </div>
       </div>
+
       <div class="card">
         <h1>Admin Portal</h1>
         <p>
           Authorized personnel only. Secure terminal authentication required.
         </p>
+
         {{if .Error}}
         <div class="alert-error">{{.Error}}</div>
         {{end}}
+
         <form action="/admin/login" method="POST">
           <div class="input-group">
             <label for="email">Administrator Email</label>
@@ -33,6 +36,7 @@
               required
             />
           </div>
+
           <div class="input-group">
             <label for="password">Security Credentials</label>
             <input
@@ -43,15 +47,27 @@
               required
             />
           </div>
+
           <button type="submit" class="btn-primary">
             Access Management Console
           </button>
         </form>
-        <a href="/admin/register" class="link-action">Register as Admin</a>
+
         <hr class="divider" />
-        <a href="/login" class="btn-primary">Staff Login</a>
-        <a href="/" class="link-action">Return to Main Portal</a>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="/login" class="btn-primary" style="background-color: var(--gray-bg); color: var(--black); border: 1px solid var(--gray-border); text-align: center;">
+            Switch to Staff Login
+          </a>
+
+          <div class="flex-row-space" style="margin-top: 4px;">
+            <a href="/admin/register" class="link-action">Register as Admin</a>
+            <a href="/" class="link-action link-bold">Return to Main Portal</a>
+          </div>
+        </div>
       </div>
     </div>
+
+    <script src="/static/js/main.js"></script>
   </body>
 </html>

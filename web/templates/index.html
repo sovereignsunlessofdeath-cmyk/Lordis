@@ -4,19 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lordis - Staff Terminal</title>
-    <link class="style" rel="stylesheet" href="/static/css/style.css" />
+    <link rel="stylesheet" href="/static/css/style.css" />
   </head>
   <body>
     <div class="container">
       <div class="logo-container">
-        <span class="logo-text">LOR<span class="text-red">DIS</span></span>
+        <span class="logo-text">LORD<span class="logo-red">IS</span></span>
       </div>
+
       <div class="card">
         <h1>Staff Sign In</h1>
         <p>Access your automated operations, food logs, and shift requests.</p>
+
         {{if .Error}}
         <div class="alert-error">{{.Error}}</div>
         {{end}}
+
         <form action="/login" method="POST">
           <div class="input-group">
             <label for="email">Work Email</label>
@@ -28,6 +31,7 @@
               required
             />
           </div>
+
           <div class="input-group">
             <label for="password">Password</label>
             <input
@@ -38,21 +42,27 @@
               required
             />
           </div>
+
           <button type="submit" class="btn-primary">Login</button>
         </form>
-        <a href="/forgot-password" class="link-action"
-          >Forgot Account Credentials?</a
-        >
-        <a href="/login_admin" class="link-action">Admin Login</a>
-        <p class="small-note">
-          Admin registration requires the official key and must be completed
-          through the admin portal.
+
+        <div class="flex-row-space" style="margin-top: 14px; margin-bottom: 8px;">
+          <a href="/forgot-password" class="link-action">Forgot Credentials?</a>
+          <a href="/admin/login" class="link-action link-bold">Admin Portal</a>
+        </div>
+
+        <p class="small-note" style="margin-top: 6px; font-size: 12px; color: var(--text-muted);">
+          Admin registration requires the official security key and must be completed through the admin portal.
         </p>
+
         <hr class="divider" />
-        <a href="/register" class="btn-primary link-action text-red"
-          >Create Staff Account</a
-        >
+
+        <a href="/register" class="btn-primary" style="background-color: var(--gray-bg); color: var(--black); border: 1px solid var(--gray-border); text-align: center;">
+          Create Staff Account
+        </a>
       </div>
     </div>
+
+    <script src="/static/js/main.js"></script>
   </body>
 </html>

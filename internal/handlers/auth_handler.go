@@ -4,37 +4,16 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"html/template"
-	"lordis/internal/database"
-	"lordis/internal/middleware"
-	"lordis/internal/models"
-	"lordis/internal/services"
 	"net/http"
-	"net/mail"
 	"os"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
+
+	"lordis/internal/database"
+	"lordis/internal/middleware"
+	"lordis/internal/models"
 )
-
-func isSupportedEmailDomain(email string) bool {
-	trimmed := strings.TrimSpace(email)
-	if trimmed == "" {
-		return false
-	}
-
-	addr, err := mail.ParseAddress(trimmed)
-	if err != nil {
-		return false
-	}
-
-	domain := strings.ToLower(strings.TrimSpace(strings.Split(addr.Address, "@")[1]))
-	switch domain {
-	case "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "live.com":
-		return true
-	default:
-		return false
-	}
-}
 
 func ShowLoginPage(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("web/templates/index.html")
@@ -45,7 +24,6 @@ func ShowLoginPage(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
-// Check line 22 right here! Ensure it has 'func', the name, and the parameters:
 func ShowAdminLoginPage(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("web/templates/login_admin.html")
 	if err != nil {
@@ -78,7 +56,7 @@ func ShowForgotPasswordPage(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, nil)
 }
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -93,9 +71,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If DATABASE_URL is configured, use Postgres, otherwise fall back to JSON file
-	if os.Getenv("DATABASE_URL") != "" {
-		err := database.RegisterUser(name, email, password, "staff")
+	// Dynamic Dispatch: If AuthService is ready / Postgres is live
+	if h != nil && h.AuthService != nil && os.Getenv("DATABASE_URL") != "" {
+		_, err := h.AuthService.Register(name, email, password, "staff")
 		if err != nil {
 			http.Error(w, "Registration failed: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -104,6 +82,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Legacy Fallback to JSON database
 	data, _ := database.LoadData()
 	for _, u := range data.Users {
 		if strings.EqualFold(u.Name, name) {
@@ -116,7 +95,6 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Hash password before saving to JSON store
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Registration failed: could not hash password", http.StatusInternalServerError)
@@ -130,7 +108,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login?registered=true", http.StatusSeeOther)
 }
 
-func AdminRegisterHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AdminRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/admin/register", http.StatusSeeOther)
 		return
@@ -152,8 +130,8 @@ func AdminRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if os.Getenv("DATABASE_URL") != "" {
-		err := database.RegisterUser(name, email, password, "admin")
+	if h != nil && h.AuthService != nil && os.Getenv("DATABASE_URL") != "" {
+		_, err := h.AuthService.Register(name, email, password, "admin")
 		if err != nil {
 			http.Error(w, "Admin registration failed: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -182,7 +160,7 @@ func AdminRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/login_admin?registered=true", http.StatusSeeOther)
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -191,9 +169,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	// If DATABASE_URL is configured, use Postgres authentication
-	if os.Getenv("DATABASE_URL") != "" {
-		u, ok, err := database.AuthenticateUser(email, password)
+	var loggedInUser models.User
+	var userFound bool
+
+	if h != nil && h.AuthService != nil && os.Getenv("DATABASE_URL") != "" {
+		u, ok, err := h.AuthService.Authenticate(email, password)
 		if err != nil {
 			http.Error(w, "Authentication error: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -202,53 +182,27 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid credentials profile verification", http.StatusUnauthorized)
 			return
 		}
-		loggedInUser := u
-
-		session, _ := middleware.Store.Get(r, "lordis-session")
-		session.Values["name"] = loggedInUser.Name
-		session.Values["username"] = loggedInUser.Name
-		session.Values["role"] = loggedInUser.Role
-		session.Values["email"] = loggedInUser.Email
-		_ = session.Save(r, w)
-
-		if loggedInUser.Role == "admin" {
-			http.Redirect(w, r, "/tickets", http.StatusSeeOther)
-		} else {
-			http.Redirect(w, r, "/submit_support_ticket", http.StatusSeeOther)
-		}
-		return
-	}
-
-	data, _ := database.LoadData()
-
-	var loggedInUser models.User
-	Userfound := false
-
-	// Loop using indices to safely copy the matched user object out of the slice
-	for _, user := range data.Users {
-		if user.Email != email {
-			continue
-		}
-		// Try bcrypt comparison first (hashed passwords)
-		if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) == nil {
-			loggedInUser = user
-			Userfound = true
-			break
-		}
-		// Fallback: support legacy plaintext password values
-		if user.Password == password {
-			loggedInUser = user
-			Userfound = true
-			break
+		loggedInUser = u
+		userFound = true
+	} else {
+		data, _ := database.LoadData()
+		for _, user := range data.Users {
+			if user.Email != email {
+				continue
+			}
+			if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) == nil || user.Password == password {
+				loggedInUser = user
+				userFound = true
+				break
+			}
 		}
 	}
 
-	if !Userfound {
+	if !userFound {
 		http.Error(w, "Invalid credentials profile verification", http.StatusUnauthorized)
 		return
 	}
 
-	// Save user profile details to the session store securely
 	session, _ := middleware.Store.Get(r, "lordis-session")
 	session.Values["name"] = loggedInUser.Name
 	session.Values["username"] = loggedInUser.Name
@@ -256,7 +210,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["email"] = loggedInUser.Email
 	_ = session.Save(r, w)
 
-	// Send the user to the correct routing path depending on their role
 	if loggedInUser.Role == "admin" {
 		http.Redirect(w, r, "/tickets", http.StatusSeeOther)
 	} else {
@@ -264,7 +217,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Redirect(w, r, "/login_admin", http.StatusSeeOther)
 		return
@@ -274,14 +227,11 @@ func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	data, _ := database.LoadData()
-
 	var adminUser models.User
 	adminFound := false
+
 	for _, user := range data.Users {
-		if user.Email != email {
-			continue
-		}
-		if user.Role != "admin" {
+		if user.Email != email || user.Role != "admin" {
 			continue
 		}
 		if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) == nil || user.Password == password {
@@ -322,12 +272,12 @@ func RecoverPasswordHandler(w http.ResponseWriter, r *http.Request) {
 		b := make([]byte, 4)
 		_, _ = rand.Read(b)
 		tempPass := hex.EncodeToString(b)
-		// Hash the temporary token before saving; send plaintext to user
+
 		hashedTemp, _ := bcrypt.GenerateFromPassword([]byte(tempPass), bcrypt.DefaultCost)
 		data.Users[userIndex].Password = string(hashedTemp)
-		_ = database.SaveData(data)
 
-		go services.SendBrevoEmail(email, 0, "Reset Token Issued", "Log in using temporary security token: "+tempPass)
+		addUserNotification(&data, email, "Password Reset", "Your temporary password is: "+tempPass)
+		_ = database.SaveData(data)
 	}
 
 	http.Redirect(w, r, "/login?recovery_sent=true", http.StatusSeeOther)

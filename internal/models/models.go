@@ -22,6 +22,7 @@ type Ticket struct {
 	Category       string `json:"category"`
 	Description    string `json:"description"`
 	Status         string `json:"status"`
+	StatusClass    string `json:"status_class,omitempty"` // Added for badge CSS styling
 	DateResolved   string `json:"date_resolved,omitempty"`
 	Reply          string `json:"reply,omitempty"`
 }
@@ -42,6 +43,7 @@ type OrderRequest struct {
 	Day         string `json:"day"`
 	Meal        string `json:"meal"`
 	Status      string `json:"status"`
+	StatusClass string `json:"status_class,omitempty"` // Added for badge CSS styling
 	SubmittedAt string `json:"submitted_at"`
 }
 
@@ -55,12 +57,31 @@ type AppData struct {
 	Notifications    []Notification `json:"notifications"`
 }
 
-// Order represents an order record if you migrate orders table.
+// Order represents an order record in SQL database
 type Order struct {
-	ID        int
-	Username  string
-	ItemID    string
-	Quantity  int
-	Status    string
-	CreatedAt time.Time
+	ID        int       `json:"id"`
+	Username  string    `json:"username"`
+	ItemID    string    `json:"item_id"`
+	Quantity  int       `json:"quantity"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// AdminDashboardData bundles all metrics and lists for rendering admin pages
+type AdminDashboardData struct {
+	AdminEmail    string
+	TotalOrders   int
+	PendingOrders int
+	OpenTickets   int
+	Orders        []OrderRequest
+	Tickets       []Ticket
+}
+
+// Example missing view model
+type PageData struct {
+    Title         string
+    User          User
+    Notifications []Notification
+    Error         string
+    Success       string
 }

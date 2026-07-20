@@ -6,28 +6,43 @@
     <title>Lordis Admin - Manage Orders</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body class="body-bottom-padding">
+<body class="body-padding">
 
     <div class="container">
         <!-- Identity Header Section -->
         <div class="logo-container header-left-aligned">
-            <span class="logo-text">LOR<span class="text-red">DIS</span> Kitchen Log</span>
-            <p class="header-subtext">Active daily staff meal selections.</p>
+            <div class="logo-badge">
+                LORD<span class="logo-red">IS</span> Kitchen Log
+                <span class="logo-admin-tag">ADMIN</span>
+            </div>
+            <p class="header-subtext" style="margin-top: 4px; font-size: 13px; color: var(--text-muted);">
+                Active daily staff meal selections.
+            </p>
         </div>
 
-        <h1 class="section-title">Daily Selections</h1>
+        <h1 class="section-title" style="margin-top: 16px;">Daily Selections</h1>
 
         <!-- Core Loop for Daily Selections -->
         {{range .AllOrders}}
-        <div class="card admin-card">
-            <div class="card-header-row">
-                <strong class="card-staff-title">Staff: {{.StaffName}}</strong>
-                <a href="/admin/orders/edit?id={{.ID}}" class="card-action-link">Modify Selection</a>
+        <div class="card card-compact admin-card">
+            <div class="card-header-row flex-row-space">
+                <strong class="card-staff-title" style="font-size: 15px; color: var(--black);">
+                    Staff: {{.StaffName}}
+                </strong>
+                <a href="/admin/orders/edit?id={{.ID}}" class="card-action-link link-action link-bold" style="font-size: 13px;">
+                    Modify Selection
+                </a>
             </div>
-            <p class="card-selection-text">{{.MealName}}</p>
+            <p class="card-selection-text" style="margin-top: 8px; margin-bottom: 0; font-size: 14px; color: var(--red, #e53e3e); font-weight: 600;">
+                {{.MealName}}
+            </p>
         </div>
         {{else}}
-        <p class="header-subtext">No staff meal entries logged for today.</p>
+        <div class="card card-compact">
+            <p style="margin-bottom: 0; text-align: center; color: var(--text-muted); font-size: 13px;">
+                No staff meal entries logged for today.
+            </p>
+        </div>
         {{end}}
 
         <!-- Master Admin Navigation Bar -->
@@ -43,5 +58,6 @@
         </nav>
     </div>
 
+    <script src="/static/js/main.js"></script>
 </body>
 </html>

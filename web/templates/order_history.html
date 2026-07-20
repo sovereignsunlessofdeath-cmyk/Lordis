@@ -9,21 +9,32 @@
 <body class="body-padding">
     <div class="container">
         <div class="logo-left">
-            <span class="logo-text">My <span class="text-red">Orders</span></span>
-            <p class="logo-admin-tag">Track your submitted meal requests below.</p>
+            <span class="logo-text">LORD<span class="logo-red">IS</span></span>
+            <h1 class="section-title" style="margin-top: 4px;">My Orders</h1>
+            <p style="margin-bottom: 0; font-size: 13px; color: var(--text-muted);">
+                Track your submitted meal requests below.
+            </p>
         </div>
+
         {{range .Orders}}
         <div class="card card-compact">
             <div class="flex-row-space">
-                <span class="welcome-title">Order #{{.OrderNumber}}</span>
-                <span class="text-red link-bold">{{.Status}}</span>
+                <span class="welcome-title" style="margin-bottom: 0;">Order #{{.OrderNumber}}</span>
+                <span class="text-red link-bold" style="font-size: 13px;">{{.Status}}</span>
             </div>
-            <p class="welcome-title">{{.MealName}}</p>
-            <span class="logo-admin-tag">Submitted: {{.Date}}</span>
+            <p class="welcome-title" style="margin-top: 6px; margin-bottom: 8px;">{{.MealName}}</p>
+            <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">
+                Submitted: {{.Date}}
+            </span>
         </div>
         {{else}}
-        <p class="logo-admin-tag">You haven't placed any food orders today.</p>
+        <div class="card card-compact">
+            <p style="margin-bottom: 0; text-align: center; color: var(--text-muted);">
+                You haven't placed any food orders today.
+            </p>
+        </div>
         {{end}}
+
         <nav class="nav-bottom">
             <a href="/search-food" class="nav-item">
                 <span class="nav-icon">🏠</span>
@@ -43,5 +54,7 @@
             </a>
         </nav>
     </div>
+
+    <script src="/static/js/main.js"></script>
 </body>
 </html>

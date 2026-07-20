@@ -9,41 +9,89 @@
   <body class="body-padding">
     <div class="container">
       <div class="logo-left">
-        <h1 class="section-title">My Activity Log</h1>
+        <span class="logo-text">LORD<span class="logo-red">IS</span></span>
+        <h1 class="section-title" style="margin-top: 4px;">My Activity Log</h1>
+        <p style="margin-bottom: 0; font-size: 13px; color: var(--text-muted);">
+          Track your notifications, orders, and submitted tickets.
+        </p>
       </div>
 
-      <h2 class="sub-section-title">Meal Orders</h2>
+      <!-- In-App Notifications Section -->
+      <h2 class="sub-section-title" style="margin-top: 20px;">Notifications</h2>
+      <div class="notifications-list">
+        {{range .Notifications}}
+        <div class="card card-compact notification-item" id="notif-{{.ID}}" style="transition: all 0.3s ease;">
+          <div class="flex-row-space">
+            <strong class="notif-title">{{.Title}}</strong>
+            <button
+              type="button"
+              class="btn-dismiss"
+              data-id="{{.ID}}"
+              onclick="dismissNotification('{{.ID}}')"
+              style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px;"
+            >
+              ✕ Dismiss
+            </button>
+          </div>
+          <p class="notif-message" style="margin: 6px 0; font-size: 13px;">{{.Message}}</p>
+          <span class="notif-time" style="font-size: 11px; color: var(--text-muted);">{{.CreatedAt}}</span>
+        </div>
+        {{else}}
+        <div class="card card-compact">
+          <p style="margin-bottom: 0; text-align: center; color: var(--text-muted); font-size: 13px;">
+            No new notifications.
+          </p>
+        </div>
+        {{end}}
+      </div>
+
+      <!-- Meal Orders Section -->
+      <h2 class="sub-section-title" style="margin-top: 24px;">Meal Orders</h2>
       {{range .Orders}}
       <div class="card card-compact">
         <div class="flex-row-space">
           <div>
-            <span class="welcome-title">#{{.OrderNumber}}</span>
-            <span class="logo-admin-tag">{{.Date}}</span>
+            <span class="welcome-title" style="margin-bottom: 0;">#{{.OrderNumber}}</span>
+            <span style="font-size: 12px; color: var(--text-muted); margin-left: 6px;">{{.Date}}</span>
           </div>
-          <span class="text-red link-bold">{{.Status}}</span>
+          <span class="text-red link-bold" style="font-size: 13px;">{{.Status}}</span>
         </div>
-        <p class="welcome-title">{{.MealName}}</p>
+        <p class="welcome-title" style="margin-top: 6px; margin-bottom: 0;">{{.MealName}}</p>
       </div>
       {{else}}
-      <p class="logo-admin-tag">No meal submissions on record.</p>
+      <div class="card card-compact">
+        <p style="margin-bottom: 0; text-align: center; color: var(--text-muted); font-size: 13px;">
+          No meal submissions on record.
+        </p>
+      </div>
       {{end}}
 
-      <h2 class="sub-section-title">Gate Passes & Requests</h2>
+      <!-- Gate Passes & Requests Section -->
+      <h2 class="sub-section-title" style="margin-top: 24px;">Gate Passes & Requests</h2>
       {{range .Tickets}}
       <div class="card card-compact">
         <div class="flex-row-space">
-          <strong class="welcome-title">{{.Category}}</strong>
-          <span class="logo-admin-tag">ID: #{{.ID}}</span>
+          <strong class="welcome-title" style="margin-bottom: 0;">{{.Category}}</strong>
+          <div>
+            <span class="text-red link-bold" style="margin-right: 8px; font-size: 13px;">{{.Status}}</span>
+            <span style="font-size: 12px; color: var(--text-muted);">ID: #{{.ID}}</span>
+          </div>
         </div>
-        <p class="logo-admin-tag">{{.Description}}</p>
-        {{if .AdminResponse}}
-        <div class="alert-error">
-          <strong>Admin Reply:</strong> {{.AdminResponse}}
+        <p style="margin-top: 8px; margin-bottom: 0; font-size: 13px; color: var(--black);">{{.Description}}</p>
+
+        {{if .Reply}}
+        <div style="margin-top: 10px; padding: 10px; background-color: var(--gray-bg); border-radius: 6px; border-left: 3px solid var(--black); font-size: 13px;">
+          <strong style="display: block; margin-bottom: 2px;">Admin Reply:</strong>
+          <span>{{.Reply}}</span>
         </div>
         {{end}}
       </div>
       {{else}}
-      <p class="logo-admin-tag">No administrative requests logged yet.</p>
+      <div class="card card-compact">
+        <p style="margin-bottom: 0; text-align: center; color: var(--text-muted); font-size: 13px;">
+          No administrative requests logged yet.
+        </p>
+      </div>
       {{end}}
 
       <nav class="nav-bottom">
@@ -55,7 +103,7 @@
           <span class="nav-icon">🎫</span>
           <span>Requests</span>
         </a>
-        <a href="/order-history" class="nav-item active">
+        <a href="/history" class="nav-item active">
           <span class="nav-icon">🕒</span>
           <span>Orders</span>
         </a>
@@ -65,5 +113,26 @@
         </a>
       </nav>
     </div>
+
+    <script src="/static/js/main.js"></script>
+    <script>
+      function dismissNotification(id) {
+        const elem = document.getElementById(`notif-${id}`);
+        if (!elem) return;
+
+        elem.style.opacity = "0";
+        elem.style.transform = "scale(0.95)";
+
+        setTimeout(() => {
+          elem.remove();
+        }, 300);
+
+        fetch(`/notifications/read/${id}`, {
+          method: "POST",
+        }).catch((err) =>
+          console.error("Failed to mark notification as read:", err),
+        );
+      }
+    </script>
   </body>
 </html>

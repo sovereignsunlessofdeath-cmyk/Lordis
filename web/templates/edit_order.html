@@ -6,29 +6,56 @@
     <title>Lordis Admin - Edit Selection</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body>
+<body class="body-padding">
     <div class="container">
         <div class="logo-container">
-            <span class="logo-text">Modify Order #{{.Order.ID}}</span>
+            <div class="logo-badge">
+                LORD<span class="logo-red">IS</span>
+                <span class="logo-admin-tag">ADMIN</span>
+            </div>
+            <p class="sub-section-title" style="margin-top: 8px; margin-bottom: 0;">
+                Modify Order #{{.Order.ID}}
+            </p>
         </div>
+
         <div class="card">
-            <p class="welcome-title">Staff Account: {{.Order.StaffName}}</p>
-            <p>Current Choice: {{.Order.MealName}}</p>
+            <h1>Edit Staff Selection</h1>
+            <p>Override or adjust the meal choice recorded for this staff member.</p>
+
+            <div style="background-color: var(--gray-bg); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--gray-border); margin-bottom: 20px;">
+                <p style="margin-bottom: 4px;"><strong>Staff Account:</strong> {{.Order.StaffName}}</p>
+                <p style="margin-bottom: 0; color: var(--text-muted); font-size: 13px;">
+                    <strong>Current Choice:</strong> <span class="text-red link-bold">{{.Order.MealName}}</span>
+                </p>
+            </div>
+
             <form action="/admin/orders/edit" method="POST">
                 <input type="hidden" name="order_id" value="{{.Order.ID}}">
+
                 <div class="input-group">
                     <label for="meal_name">Select Alternative Menu Item</label>
                     <select id="meal_name" name="meal_name" required>
-                        <option value="PARTY RICE WITH CHICKEN">PARTY RICE WITH CHICKEN</option>
-                        <option value="PARTY RICE WITH BEEF">PARTY RICE WITH BEEF</option>
-                        <option value="JOLLOF + FRIED RICE + CROAKER">JOLLOF + FRIED RICE + CROAKER</option>
+                        <option value="">Choose a new meal option...</option>
+                        {{if .Menu}}
+                            {{range .Menu}}
+                            <option value="{{.}}" {{if eq . $.Order.MealName}}selected{{end}}>{{.}}</option>
+                            {{end}}
+                        {{else}}
+                            <option value="PARTY RICE WITH CHICKEN">PARTY RICE WITH CHICKEN</option>
+                            <option value="PARTY RICE WITH BEEF">PARTY RICE WITH BEEF</option>
+                            <option value="JOLLOF + FRIED RICE + CROAKER">JOLLOF + FRIED RICE + CROAKER</option>
+                        {{end}}
                     </select>
                 </div>
+
                 <button type="submit" class="btn-primary">Update Meal Choice</button>
             </form>
+
             <hr class="divider">
-            <a href="/admin/orders" class="link-action">Cancel Modifications</a>
+            <a href="/admin/orders" class="link-action">&larr; Cancel Modifications</a>
         </div>
     </div>
+
+    <script src="/static/js/main.js"></script>
 </body>
 </html>

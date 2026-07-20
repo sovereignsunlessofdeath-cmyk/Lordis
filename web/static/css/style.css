@@ -1,305 +1,439 @@
-/* Master Color Palette Configuration */
+/* ==========================================
+   🎨 1. MASTER COLOR PALETTE & ROOT ENGINE
+   ========================================== */
 :root {
-    --black: #111111;
-    --white: #ffffff;
-    --red: #dc2626;
-    --gray-bg: #f9f9f9;
-    --gray-border: #e5e7eb;
-    --text-muted: #666666;
+  color-scheme: light;
+  accent-color: var(--red); /* Tints native inputs/checkboxes */
+
+  /* High-Contrast Core Palette */
+  --black: #111111;
+  --black-hover: #1f1f1f;
+  --white: #ffffff;
+  --red: #dc2626;
+  --red-hover: #b91c1c;
+  --red-soft-bg: #fef2f2;
+  --gray-bg: #f9f9f9;
+  --gray-border: #e5e7eb;
+  --text-muted: #666666;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+/* Universal Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
 }
 
 body {
-    background-color: var(--gray-bg);
-    color: var(--black);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  background-color: var(--gray-bg);
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Handles modern mobile screen notches & navigation bars */
 .body-padding {
-    padding-bottom: 80px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Container Blocks */
+/* ==========================================
+   📦 2. CONTAINER & CARD LAYOUTS
+   ========================================== */
 .container {
-    width: 100%;
-    max-width: 420px;
-    margin: auto;
-    padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  padding: 24px 16px;
 }
 
 .card {
-    background: var(--white);
-    border: 1px solid var(--gray-border);
-    border-radius: 12px;
-    padding: 28px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background: var(--white);
+  border: 1px solid var(--gray-border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .card-compact {
-    padding: 16px;
-    margin-bottom: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
-/* Typography */
-h1 {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--black);
-    margin-bottom: 8px;
-}
-
-p {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 24px;
-}
-
-.section-title {
-    font-size: 20px;
-    margin-bottom: 16px;
-}
-
-.sub-section-title {
-    font-size: 14px;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-    margin-top: 24px;
-}
-
-/* Input Fields */
-.input-group {
-    margin-bottom: 16px;
-}
-
-.input-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: var(--black);
-}
-
-.input-group input, .input-group select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--gray-border);
-    border-radius: 6px;
-    font-size: 15px;
-    background-color: var(--white);
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-.input-group input:focus {
-    border-color: var(--red);
-}
-
-/* Buttons & Actions */
-.btn-primary {
-    display: block;
-    width: 100%;
-    background-color: var(--black);
-    color: var(--white);
-    border: none;
-    padding: 14px;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    transition: background-color 0.2s;
-}
-
-.btn-primary:hover {
-    background-color: var(--red);
-}
-
-.btn-compact {
-    padding: 8px 16px;
-    font-size: 13px;
-    width: auto;
-}
-
-.btn-admin-action {
-    padding: 6px 12px;
-    font-size: 11px;
-    background-color: var(--black);
-}
-
-.link-action {
-    display: block;
-    text-align: center;
-    font-size: 13px;
-    color: var(--black);
-    text-decoration: none;
-    margin-top: 16px;
-}
-
-.link-action:hover {
-    color: var(--red);
-}
-
-.link-bold {
-    font-weight: 600;
-}
-
-/* Layout Utilities */
+/* ==========================================
+   🏷️ 3. HIGH-CONTRAST LOGO & BRANDING
+   ========================================== */
 .logo-container {
-    text-align: center;
-    margin-bottom: 32px;
+  text-align: center;
+  margin-bottom: 24px;
 }
 
 .logo-left {
-    text-align: left;
-    margin-bottom: 24px;
+  text-align: left;
+  margin-bottom: 24px;
 }
 
+/* Sharp Red & Black Contrast Text Logo */
 .logo-text {
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -1px;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: var(--black);
+  display: inline-flex;
+  align-items: center;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.logo-text .logo-red {
+  color: var(--red);
+}
+
+/* Alternative High-Contrast Pill/Badge Logo */
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--black);
+  color: var(--white);
+  padding: 6px 14px;
+  border-radius: 8px;
+  border-left: 4px solid var(--red);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.logo-badge .logo-red {
+  color: var(--red);
+  margin-left: 2px;
 }
 
 .logo-admin-tag {
-    font-size: 14px;
-    font-weight: 400;
-    letter-spacing: 0;
-    color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--white);
+  background-color: var(--red);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  text-transform: uppercase;
+}
+
+/* ==========================================
+   ✏️ 4. TYPOGRAPHY & HEADINGS
+   ========================================== */
+h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.sub-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  margin-top: 24px;
 }
 
 .welcome-title {
-    margin-bottom: 4px;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--black);
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--black);
 }
 
 .text-red {
-    color: var(--red);
+  color: var(--red);
 }
 
+/* ==========================================
+   📝 5. FORM CONTROLS & INPUT FIELDS
+   ========================================== */
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--black);
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--gray-border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background-color: var(--white);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus-visible,
+.input-group select:focus-visible,
+.input-group textarea:focus-visible {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+.input-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* ==========================================
+   🔘 6. BUTTONS & ACTIONS
+   ========================================== */
+.btn-primary {
+  display: block;
+  width: 100%;
+  background-color: var(--black);
+  color: var(--white);
+  border: none;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+  background-color: var(--red);
+}
+
+.btn-primary:active {
+  transform: scale(0.99);
+}
+
+.btn-compact {
+  padding: 8px 14px;
+  font-size: 13px;
+  width: auto;
+}
+
+.btn-danger {
+  background-color: var(--red);
+  color: var(--white);
+}
+
+.btn-danger:hover {
+  background-color: var(--red-hover);
+}
+
+.btn-admin-action {
+  padding: 6px 12px;
+  font-size: 11px;
+  background-color: var(--black);
+  color: var(--white);
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-admin-action:hover {
+  background-color: var(--black-hover);
+}
+
+.link-action {
+  display: inline-block;
+  font-size: 13px;
+  color: var(--black);
+  text-decoration: none;
+  margin-top: 8px;
+  transition: color 0.2s;
+}
+
+.link-action:hover {
+  color: var(--red);
+}
+
+.link-bold {
+  font-weight: 600;
+}
+
+/* ==========================================
+   🛠️ 7. ALERTS & LAYOUT UTILITIES
+   ========================================== */
 .alert-error {
-    background-color: #fef2f2;
-    border-left: 4px solid var(--red);
-    color: var(--red);
-    padding: 12px;
-    font-size: 14px;
-    border-radius: 4px;
-    margin-bottom: 16px;
+  background-color: var(--red-soft-bg);
+  border-left: 4px solid var(--red);
+  color: #991b1b;
+  padding: 12px;
+  font-size: 13px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  line-height: 1.4;
 }
 
 .divider {
-    margin: 20px 0;
-    border: 0;
-    border-top: 1px solid var(--gray-border);
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--gray-border);
 }
 
 .flex-row-space {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.flex-row-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
 }
 
 .flex-gap-small {
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 8px;
 }
 
-/* Profile Elements */
+.order-status-form,
+.order-delete-form,
+.ticket-delete-form {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.order-status-form select {
+  padding: 7px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid var(--gray-border);
+}
+
+/* ==========================================
+   👤 8. PROFILE & BANNER COMPONENTS
+   ========================================== */
 .profile-header {
-    margin-bottom: 20px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  margin-bottom: 20px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .profile-avatar {
-    background: var(--black);
-    color: var(--white);
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 18px;
+  background: var(--black);
+  color: var(--white);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  border: 2px solid var(--red);
+  flex-shrink: 0;
 }
 
 .profile-banner {
-    background: var(--red);
-    color: var(--white);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
+  background: var(--red);
+  color: var(--white);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
 .profile-banner span {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.9;
-    display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.9;
+  display: block;
 }
 
 .profile-banner strong {
-    font-size: 22px;
-    display: block;
-    margin-bottom: 4px;
+  font-size: 22px;
+  display: block;
+  margin-bottom: 4px;
 }
 
 .profile-options {
-    padding: 12px 20px;
+  padding: 12px 20px;
 }
 
-/* Bottom Navigation Bar */
+/* ==========================================
+   📱 9. BOTTOM NAVIGATION BAR (MOBILE READY)
+   ========================================== */
 .nav-bottom {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 64px;
-    background-color: var(--white);
-    border-top: 1px solid var(--gray-border);
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 100;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background-color: var(--white);
+  border-top: 1px solid var(--gray-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 100;
 }
 
 .nav-item {
-    text-decoration: none;
-    color: var(--text-muted);
-    font-size: 11px;
-    font-weight: 500;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: color 0.2s;
 }
 
-.nav-item.active {
-    color: var(--red);
+.nav-item.active,
+.nav-item:hover {
+  color: var(--red);
 }
 
 .nav-icon {
-    font-size: 18px;
-    margin-bottom: 2px;
-}
-
-.order-status-form {
-    display: inline-block;
-    margin-top: 8px;
+  font-size: 18px;
+  margin-bottom: 2px;
 }

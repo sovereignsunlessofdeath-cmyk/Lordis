@@ -1,7 +1,15 @@
-# Local Database File (Crucial: Prevents overwriting production data)
+# Local Database File & Storage (Prevents overwriting local state or production data)
 internal/database/data.json
+*.db
+*.sqlite
+*.sqlite3
 
-# Compiled Binaries / Executables
+# Local Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Compiled Binaries & Build Outputs
 *.exe
 *.exe~
 *.dll
@@ -9,8 +17,9 @@ internal/database/data.json
 *.dylib
 bin/
 dist/
+main
 
-# IDE and System Configurations
+# IDEs, Editors & System Files
 .idea/
 .vscode/
 *.suo
@@ -18,12 +27,15 @@ dist/
 *.njsproj
 *.sln
 *.swp
+*.swo
 Thumbs.db
 .DS_Store
 
-# Go Testing Cache
+# Go Testing, Coverage & Cache
 *.test
 *.out
+coverage.txt
+*.prof
 
-# Local environment file
-.env
+# OS & Vendor Drops
+vendor/
