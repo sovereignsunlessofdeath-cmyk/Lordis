@@ -28,20 +28,21 @@ CREATE TABLE IF NOT EXISTS tickets (
     date_resolved TIMESTAMP NULL
 );
 
+-- Create orders table
 CREATE TABLE IF NOT EXISTS orders (
-id SERIAL PRIMARY KEY,
-username TEXT NOT NULL,
-item_id TEXT,
-quantity INT DEFAULT 1,
-status TEXT DEFAULT 'pending',
-created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    id SERIAL PRIMARY KEY,
+    username TEXT NOT NULL,
+    item_id TEXT,
+    quantity INT DEFAULT 1,
+    status TEXT DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
-Email logs:
+-- Create email logs table
 CREATE TABLE IF NOT EXISTS email_logs (
-id SERIAL PRIMARY KEY,
-to_email TEXT,
-subject TEXT,
-body TEXT,
-created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+    id SERIAL PRIMARY KEY,
+    to_email TEXT,
+    subject TEXT,
+    body TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );

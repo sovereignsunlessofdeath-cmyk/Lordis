@@ -67,23 +67,23 @@ func main() {
 	// 🔓 OPEN ACCESS ROUTES (No Login Required)
 	// ==========================================
 	r.Get("/", handlers.ShowLoginPage)
-	r.Get("/login", handlers.ShowLoginPage)
-	r.Post("/login", handlers.LoginHandler)
-	r.Get("/register", handlers.ShowRegisterPage)
-	r.Post("/register", handlers.RegisterHandler)
+    r.Get("/login", handlers.ShowLoginPage)
+    r.Post("/login", handlers.LoginHandler)
+    r.Get("/register", handlers.ShowRegisterPage)
+    r.Post("/register", handlers.RegisterHandler)
 
-	// Password Recovery routes
-	r.Get("/forgot-password", handlers.ShowForgotPasswordPage)
-	r.Post("/forgot-password", handlers.RecoverPasswordHandler)
+    // Password Recovery routes
+    r.Get("/forgot-password", handlers.ShowForgotPasswordPage)
+    r.Post("/forgot-password", handlers.RecoverPasswordHandler)
 
-	r.Get("/logout", handlers.LogoutHandler)
-	r.Get("/login_admin", handlers.ShowAdminLoginPage)
-	r.Get("/login_admin/", handlers.ShowAdminLoginPage)
-	r.Get("/admin/register", handlers.ShowAdminRegisterPage)
-	r.Get("/admin/register/", handlers.ShowAdminRegisterPage)
-	r.Post("/admin/register", handlers.AdminRegisterHandler)
-	r.Post("/admin/register/", handlers.AdminRegisterHandler)
-	r.Post("/admin/login", handlers.AdminLoginHandler)
+    r.Get("/logout", handlers.LogoutHandler)
+
+    // Admin Authentication Routes
+    r.Get("/admin/login", handlers.ShowAdminLoginPage)
+    r.Post("/admin/login", handlers.AdminLoginHandler)
+    
+    r.Get("/admin/register", handlers.ShowAdminRegisterPage)
+    r.Post("/admin/register", handlers.AdminRegisterHandler)
 	// ==========================================
 	// 🛡️ PROTECTED STAFF ROUTES (Login Required)
 	// ==========================================
