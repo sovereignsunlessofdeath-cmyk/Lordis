@@ -1,58 +1,112 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lordis - My Account</title>
-    <link rel="stylesheet" href="/static/css/style.css" />
-  </head>
-  <body class="body-padding">
-    <div class="container">
-      <div class="logo-left"><span class="logo-text">My Account</span></div>
-      <div class="card profile-header">
-        <div class="profile-avatar">S</div>
-        <div>
-          <h2 class="welcome-title">{{.Staff.Name}}</h2>
-          <p class="logo-admin-tag">{{.Staff.Email}}</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LORDIS // User Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        industrial: {
+                            950: '#070b14',
+                            900: '#0b1329',
+                            800: '#131e3a',
+                            700: '#1d2c54',
+                            accent: '#3b82f6',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+
+        function toggleHomeDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('home-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', function() {
+            const dropdown = document.getElementById('home-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
+</head>
+<body class="bg-industrial-950 text-slate-200 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col h-screen overflow-hidden">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-industrial-900 border-b border-industrial-800 px-8 py-4 flex justify-between items-center z-20 flex-shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 bg-blue-500 rounded-xs animate-pulse"></div>
+            <span class="text-lg font-bold tracking-widest text-white font-mono">LORDIS</span>
         </div>
-      </div>
-      <div class="profile-banner">
-        <span>Duty Status</span>
-        <strong>Active On-Site</strong>
-        <span>Verified Faculty Staff Account</span>
-      </div>
-      <div class="card profile-options">
-        <div class="card card-compact">
-          <h3 class="welcome-title">Notifications</h3>
-          {{range .Notifications}}
-          <div class="card card-compact">
-            <strong>{{.Title}}</strong>
-            <p class="logo-admin-tag">{{.Message}}</p>
-            <span class="logo-admin-tag">{{.CreatedAt}}</span>
-          </div>
-          {{else}}
-          <p class="logo-admin-tag">No notifications yet.</p>
-          {{end}}
+
+        <div class="flex items-center space-x-8">
+            <nav class="flex items-center space-x-6 text-sm font-medium">
+                <!-- Home Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleHomeDropdown(event)" class="flex items-center space-x-1.5 text-slate-300 hover:text-white transition focus:outline-none">
+                        <span class="font-mono">Home</span>
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="home-dropdown" class="hidden absolute left-0 mt-2 w-52 bg-industrial-900 border border-industrial-800 rounded-lg shadow-xl py-2 z-30 font-mono text-xs">
+                        <a href="/dashboard" class="block px-4 py-2.5 text-slate-300 hover:bg-industrial-800 hover:text-blue-400 transition">Dashboard</a>
+                        <a href="/order" class="block px-4 py-2.5 text-slate-300 hover:bg-industrial-800 hover:text-blue-400 transition">New Order / Meals</a>
+                        <a href="/requests" class="block px-4 py-2.5 text-slate-300 hover:bg-industrial-800 hover:text-blue-400 transition">Tickets & Requests</a>
+                        <a href="/profile" class="block px-4 py-2.5 text-blue-400 bg-industrial-800/50 hover:bg-industrial-800 transition">Profile</a>
+                    </div>
+                </div>
+
+                <a href="/dashboard" class="text-slate-400 hover:text-white transition font-mono">Dashboard</a>
+                <a href="/order" class="text-slate-400 hover:text-white transition font-mono">New Order</a>
+                <a href="/requests" class="text-slate-400 hover:text-white transition font-mono">Requests</a>
+                <a href="/profile" class="text-blue-400 font-semibold font-mono">Profile</a>
+            </nav>
+
+            <div>
+                <a href="/logout" class="text-xs font-mono uppercase tracking-wider text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 px-4 py-2 rounded-lg transition">Logout</a>
+            </div>
         </div>
-        <hr class="divider" />
-        <a href="/logout" class="link-action flex-row-space text-red">
-          <span class="link-bold">🚪 Logout</span><span>→</span>
-        </a>
-      </div>
-      <nav class="nav-bottom">
-        <a href="/search-food" class="nav-item"
-          ><span class="nav-icon">🏠</span><span>Home</span></a
-        >
-        <a href="/submit-ticket" class="nav-item"
-          ><span class="nav-icon">🎫</span><span>Requests</span></a
-        >
-        <a href="/order-history" class="nav-item"
-          ><span class="nav-icon">🕒</span><span>Orders</span></a
-        >
-        <a href="/profile" class="nav-item active"
-          ><span class="nav-icon">👤</span><span>Profile</span></a
-        >
-      </nav>
-    </div>
-  </body>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full space-y-6">
+        <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-8 shadow-xl">
+            <div class="mb-6 pb-4 border-b border-industrial-800">
+                <span class="text-xs font-mono text-blue-400 uppercase tracking-widest">Authentication Matrix</span>
+                <h2 class="text-xl font-bold text-white mt-1">User Profile Information</h2>
+                <p class="text-xs text-slate-400 mt-1 font-mono">Review active system user credentials and clearance levels.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-industrial-950 p-4 rounded-lg border border-industrial-800 flex justify-between items-center">
+                    <span class="text-xs font-mono uppercase tracking-wider text-blue-400">Full Name</span>
+                    <span class="text-sm font-medium text-white font-mono">{{.Name}}</span>
+                </div>
+
+                <div class="bg-industrial-950 p-4 rounded-lg border border-industrial-800 flex justify-between items-center">
+                    <span class="text-xs font-mono uppercase tracking-wider text-blue-400">Email Address</span>
+                    <span class="text-sm font-medium text-white font-mono">{{.Email}}</span>
+                </div>
+
+                <div class="bg-industrial-950 p-4 rounded-lg border border-industrial-800 flex justify-between items-center">
+                    <span class="text-xs font-mono uppercase tracking-wider text-blue-400">System Role</span>
+                    <span class="text-xs font-mono bg-blue-500/10 text-blue-400 px-3 py-1 rounded border border-blue-500/20 uppercase tracking-wider">{{.Role}}</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</body>
 </html>

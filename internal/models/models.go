@@ -1,29 +1,48 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
+)
 
 type User struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Role     string `json:"role"` // "admin" or "staff"
+	ID        bson.ObjectID `bson:"_id,omitempty" json:"id"`
+	Name      string        `bson:"name" json:"name"`
+	Email     string        `bson:"email" json:"email"`
+	Password  string        `bson:"password" json:"-"`
+	Role      string        `bson:"role" json:"role"`
+	CreatedAt time.Time     `bson:"created_at" json:"created_at"`
 }
 
-type Staff struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+type Order struct {
+	ID        bson.ObjectID     `bson:"_id,omitempty" json:"id"`
+	UserEmail string            `bson:"user_email" json:"user_email"`
+	UserName  string            `bson:"user_name" json:"user_name"`
+	WeekDays  map[string]string `bson:"week_days" json:"week_days"` // e.g., {"Monday": "Jollof Rice", "Tuesday": "Fried Rice"}
+	Notes     string            `bson:"notes" json:"notes"`
+	Status    string            `bson:"status" json:"status"`       // Pending, Approved, Rejected with reason
+	CreatedAt time.Time         `bson:"created_at" json:"created_at"`
+}
+
+type MealPlanOption struct {
+	ID        bson.ObjectID `bson:"_id,omitempty" json:"id"`
+	DayOfWeek string        `bson:"day_of_week" json:"day_of_week"` // Monday, Tuesday, Wednesday, Thursday, Friday
+	FoodName  string        `bson:"food_name" json:"food_name"`
+	CreatedAt time.Time     `bson:"created_at" json:"created_at"`
 }
 
 type Ticket struct {
-	ID             int    `json:"id"`
-	Name           string `json:"name"`
-	SubmittedEmail string `json:"submitted_email"`
-	Department     string `json:"department"`
-	Category       string `json:"category"`
-	Description    string `json:"description"`
-	Status         string `json:"status"`
-	DateResolved   string `json:"date_resolved,omitempty"`
-	Reply          string `json:"reply,omitempty"`
+	ID          bson.ObjectID `bson:"_id,omitempty" json:"id"`
+	UserEmail   string        `bson:"user_email" json:"user_email"`
+	UserName    string        `bson:"user_name" json:"user_name"`
+	Title       string        `bson:"title" json:"title"`
+	Description string        `bson:"description" json:"description"` // Outing reason, going-out time, expected return time
+	Priority    string        `bson:"priority" json:"priority"`
+	Status      string        `bson:"status" json:"status"` // Open, Approved, Rejected
+	Response    string        `bson:"response" json:"response"`
+	CreatedAt   time.Time     `bson:"created_at" json:"created_at"`
+	UpdatedAt   time.Time     `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 }
 
 type Notification struct {
@@ -35,32 +54,6 @@ type Notification struct {
 	IsRead    bool   `json:"is_read"`
 }
 
-type OrderRequest struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Email       string `json:"email"`
-	Day         string `json:"day"`
-	Meal        string `json:"meal"`
-	Status      string `json:"status"`
-	SubmittedAt string `json:"submitted_at"`
-}
-
 type AppData struct {
-	Users            []User         `json:"users"`
-	Staff            []Staff        `json:"staff"`
-	Menu             []string       `json:"menu"`
-	Tickets          []Ticket       `json:"tickets"`
-	Orders           []OrderRequest `json:"orders"`
-	TicketCategories []string       `json:"ticket_categories"`
-	Notifications    []Notification `json:"notifications"`
-}
-
-// Order represents an order record if you migrate orders table.
-type Order struct {
-	ID        int
-	Username  string
-	ItemID    string
-	Quantity  int
-	Status    string
-	CreatedAt time.Time
+	Notifications []Notification
 }

@@ -1,141 +1,83 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lordis - Admin Control Center</title>
-    <link rel="stylesheet" href="/static/css/style.css" />
-  </head>
-  <body class="body-padding">
-    <div class="container">
-      <div class="logo-left">
-        <span class="logo-text">Admin Control Center</span>
-        <p class="logo-admin-tag">
-          Manage requests, review orders, update weekly meals, and monitor logs.
-        </p>
-      </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LORDIS // Admin Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-[#070b14] text-slate-200 font-sans min-h-screen flex flex-col">
 
-      <div class="card">
-        <h2 class="welcome-title">Weekly Meal Plan</h2>
-        <form action="/admin/meals" method="POST">
-          <div class="input-group">
-            <label for="meal-plan">Food available for the week</label>
-            <textarea
-              id="meal-plan"
-              name="meal_plan"
-              rows="5"
-              placeholder="One item per line"
-            >
-{{range .Menu}}{{.}}
-{{end}}</textarea
-            >
-          </div>
-          <button type="submit" class="btn-primary">
-            Save Weekly Meal Plan
-          </button>
-        </form>
-      </div>
-
-      <div class="card">
-        <h2 class="welcome-title">Pending Requests</h2>
-        {{range .Tickets}}
-        <div class="card card-compact">
-          <div class="flex-row-space">
-            <strong>{{.Name}}</strong>
-            <span class="text-red">{{.Status}}</span>
-          </div>
-          <p>{{.Category}} • {{.Description}}</p>
-          <p class="logo-admin-tag">{{.SubmittedEmail}}</p>
-          <a href="/respond_ticket/{{.ID}}" class="link-action"
-            >Reply and Send</a
-          >
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-[#131e3a] bg-[#0b1329]/80 backdrop-blur-md sticky top-0 z-50 px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="h-3 w-3 rounded-full bg-red-500 animate-pulse"></div>
+            <span class="font-mono text-sm tracking-widest text-white font-bold">LORDIS // <span class="text-red-400">ADMIN CONTROL</span></span>
         </div>
-        {{else}}
-        <p class="logo-admin-tag">No requests yet.</p>
-        {{end}}
-      </div>
-
-      <div class="card">
-        <h2 class="welcome-title">Logs and History</h2>
-        <p class="logo-admin-tag">
-          Review tickets and meal requests. Delete any log entry that is no
-          longer needed.
-        </p>
-
-        <h3 class="welcome-title">Order Requests</h3>
-        {{range .Orders}}
-        <div class="card card-compact">
-          <div class="flex-row-space">
-            <strong>{{.Name}}</strong>
-            <span class="text-red">{{.Status}}</span>
-          </div>
-          <p>{{.Day}} • {{.Meal}}</p>
-          <p class="logo-admin-tag">{{.Email}}</p>
-<form action="/orders/status/{{.ID}}" method="POST" class="order-status-form">
-  <select name="status" aria-label="Update Order Status" title="Update Order Status">
-    <option value="Pending">Pending</option>
-    <option value="Confirmed">Confirmed</option>
-    <option value="Declined">Declined</option>
-  </select>
-  <button type="submit" class="btn-primary btn-compact">
-    Update
-  </button>
-</form>
-
-          <form action="/orders/delete/{{.ID}}" method="POST" class="order-delete-form">
-            <button type="submit" class="btn-primary btn-compact btn-danger">
-              Delete
-            </button>
-          </form>
+        <div class="flex items-center space-x-6 font-mono text-xs">
+            <span class="text-slate-400">OPERATOR: <strong class="text-white">{{.Name}}</strong></span>
+            <span class="px-2.5 py-1 rounded bg-red-500/10 border border-red-500/30 text-red-400 uppercase tracking-wider font-bold">{{.Role}}</span>
+            <a href="/logout" class="text-slate-400 hover:text-red-400 transition">TERMINATE SESSION</a>
         </div>
-        {{else}}
-        <p class="logo-admin-tag">No orders yet.</p>
-        {{end}}
+    </header>
 
-        <h3 class="welcome-title">Ticket Logs</h3>
-        {{range .Tickets}}
-        <div class="card card-compact">
-          <div class="flex-row-space">
-            <strong>{{.Name}}</strong>
-            <span class="text-red">{{.Status}}</span>
-          </div>
-          <p>{{.Category}} • {{.Description}}</p>
-          <p class="logo-admin-tag">{{.SubmittedEmail}}</p>
-          ```
+    <!-- Main Workspace Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="space-y-2 font-mono text-xs">
+            <div class="text-slate-500 uppercase tracking-widest px-3 mb-2">Navigation</div>
+            <a href="/tickets" class="flex items-center space-x-3 px-4 py-3 rounded-xl bg-red-600/10 border border-red-500/30 text-red-400 font-bold transition">
+                <span>⚡ Ticket Command Matrix</span>
+            </a>
+            <a href="/dashboard" class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-[#0b1329] border border-transparent hover:border-[#131e3a] text-slate-400 hover:text-white transition">
+                <span>📊 Standard Dashboard View</span>
+            </a>
+        </aside>
 
----
+        <!-- Central Content Area -->
+        <section class="md:col-span-3 space-y-6">
+            <div class="bg-[#0b1329] border border-[#131e3a] p-6 rounded-2xl shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 to-rose-500"></div>
+                
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h1 class="text-lg font-bold text-white font-mono">System Incident Tickets</h1>
+                        <p class="text-xs text-slate-400 font-mono mt-1">Review, manage, and process active communications nodes.</p>
+                    </div>
+                </div>
 
-### 2. The Updated CSS Fix (`web/static/css/style.css`)
-Add these style declarations to the bottom of your stylesheet to keep both forms beautifully aligned side-by-side without using inline styling:
+                <!-- Data Table Placeholder -->
+                <div class="border border-[#131e3a] rounded-xl overflow-hidden">
+                    <table class="w-full text-left font-mono text-xs">
+                        <thead class="bg-[#070b14] text-slate-400 uppercase border-b border-[#131e3a]">
+                            <tr>
+                                <th class="p-4">Ticket ID</th>
+                                <th class="p-4">Originator</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#131e3a] text-slate-300">
+    {{range .Tickets}}
+    <!-- PUT THE ROW SNIPPET RIGHT HERE -->
+    <tr class="hover:bg-[#070b14]/50 transition">
+        <td class="p-4 text-red-400 font-bold">{{.ID}}</td>
+        <td class="p-4">{{.Email}}</td>
+        <td class="p-4"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">{{.Status}}</span></td>
+        <td class="p-4 text-right">
+            <a href="/respond_ticket/{{.ID}}" class="text-blue-400 hover:underline">Inspect &rarr;</a>
+        </td>
+    </tr>
+    {{end}}
+</tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
-```css
-/* Layout rules for status updating and delete forms */
-.order-status-form,
-.order-delete-form {
-    display: inline-block;
-    margin-top: 8px;
-}
+    </main>
 
-/* Optional: Gives your delete button a distinct red tint for safety */
-.btn-danger {
-    background-color: #ef4444;
-}
-.btn-danger:hover {
-    background-color: #dc2626;
-}
-            action="/tickets/delete/{{.ID}}"
-            method="POST"
-            style="display: inline-block; margin-top: 8px"
-          >
-            <button type="submit" class="btn-primary btn-compact">
-              Delete Log
-            </button>
-          </form>
-        </div>
-        {{else}}
-        <p class="logo-admin-tag">No ticket logs yet.</p>
-        {{end}}
-      </div>
-    </div>
-  </body>
+</body>
 </html>

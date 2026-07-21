@@ -21,13 +21,12 @@ func main() {
 	r := chi.NewRouter()
 
 	// 2. Inject standard production-grade middleware layers
-	r.Use(chiMiddleware.Logger)    // Prints clean incoming HTTP request logs to your terminal
-	r.Use(chiMiddleware.Recoverer) // Prevents the server from crashing completely if code panics
+	r.Use(chiMiddleware.Logger)
+	r.Use(chiMiddleware.Recoverer)
 
-	// Simple CORS middleware to allow preflight and cross-origin POSTs
+	// Simple CORS middleware
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Adjust this origin in production to a specific domain rather than '*'
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
@@ -42,88 +41,79 @@ func main() {
 		})
 	})
 
-	// 3. Mount Static Assets File Server (/web/static/css and /web/static/js)
-	staticDir := http.Dir("web/static")
-	fileServer(r, "/static", staticDir)
+	// 3. Mount Static Assets File Server
+
+	fs := http.FileServer(http.Dir("web/static"))
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 
 	// Load environment variables from .env if present
 	_ = godotenv.Load()
 
-	// If DATABASE_URL is provided, attempt to connect and run migrations
-	config := database.NewConfigFromEnv()
-	if config.HasDatabaseURL() {
-		if err := database.Connect(); err != nil {
-			fmt.Printf("Warning: could not connect to database: %v\n", err)
-		} else {
-			if err := database.Migrate(config.MigrationPath); err != nil {
-				fmt.Printf("Warning: migration failed: %v\n", err)
-			} else {
-				fmt.Println("Database connected and migrated")
-			}
-		}
+	// Connect to MongoDB
+	if err := database.ConnectMongo(); err != nil {
+		fmt.Printf("Warning: MongoDB connection error: %v\n", err)
 	}
+	defer database.DisconnectMongo()
+
+	// Initialize HTML Templates
+	if err := handlers.InitTemplates(); err != nil {
+		fmt.Printf("CRITICAL: Failed to load templates: %v\n", err)
+		return
+	}
+
+	// Initialize the Handler instance pointer
+	h := &handlers.Handler{}
 
 	// ==========================================
 	// 🔓 OPEN ACCESS ROUTES (No Login Required)
 	// ==========================================
 	r.Get("/", handlers.ShowLoginPage)
-    r.Get("/login", handlers.ShowLoginPage)
-    r.Post("/login", handlers.LoginHandler)
-    r.Get("/register", handlers.ShowRegisterPage)
-    r.Post("/register", handlers.RegisterHandler)
+	r.Get("/login", handlers.ShowLoginPage)
+	r.Post("/login", handlers.LoginHandler)
+	r.Get("/register", handlers.ShowRegisterPage)
+	r.Post("/register", handlers.RegisterHandler)
 
-    // Password Recovery routes
-    r.Get("/forgot-password", handlers.ShowForgotPasswordPage)
-    r.Post("/forgot-password", handlers.RecoverPasswordHandler)
+	// Password Recovery routes
+	r.Get("/forgot-password", handlers.ShowForgotPasswordPage)
+	r.Post("/forgot-password", handlers.RecoverPasswordHandler)
 
-    r.Get("/logout", handlers.LogoutHandler)
+	r.Get("/logout", handlers.LogoutHandler)
 
-    // Admin Authentication Routes
-    r.Get("/admin/login", handlers.ShowAdminLoginPage)
-    r.Post("/admin/login", handlers.AdminLoginHandler)
-    
-    r.Get("/admin/register", handlers.ShowAdminRegisterPage)
-    r.Post("/admin/register", handlers.AdminRegisterHandler)
+	// Admin Authentication Routes
+	r.Get("/admin/login", handlers.ShowAdminLoginPage)
+	r.Post("/admin/login", handlers.AdminLoginHandler)
+
+	r.Get("/admin/register", handlers.ShowAdminRegisterPage)
+	r.Post("/admin/register", handlers.AdminRegisterHandler)
+
 	// ==========================================
 	// 🛡️ PROTECTED STAFF ROUTES (Login Required)
 	// ==========================================
 	r.Group(func(protected chi.Router) {
-		// Apply our custom session-checking validation guard
 		protected.Use(middleware.LoginRequired)
 
-		// Profiles and History Views
-		protected.Get("/profile", handlers.ShowProfilePage)
-		protected.Get("/history", handlers.ShowHistoryPage)
-
-		// 🎫 Ticketing Operations
-		protected.Get("/submit_support_ticket", handlers.ShowSubmitTicketPage)
-		protected.Post("/submit_support_ticket", handlers.ProcessSubmitTicket)
-		protected.Get("/submit-ticket", handlers.ShowSubmitTicketPage)
-		protected.Post("/submit-ticket", handlers.ProcessSubmitTicket)
-
-		// 🍔 Food Ordering Core Workflow
+		protected.Get("/dashboard", handlers.ShowDashboardPage)
 		protected.Get("/order", handlers.ShowOrderPage)
-		protected.Post("/order", handlers.ProcessOrder)
-		protected.Get("/search_food", handlers.ShowSearchFoodPage)
-		protected.Get("/search-food", handlers.ShowSearchFoodPage)
-		protected.Get("/dashboard", handlers.ShowSearchFoodPage)
-		protected.Get("/confirmation", handlers.ShowConfirmationPage)
-		protected.Get("/order_history", handlers.ShowOrderHistoryPage)
-		protected.Get("/order-history", handlers.ShowOrderHistoryPage)
+		protected.Post("/order", handlers.SubmitOrderHandler)
+		protected.Get("/requests", handlers.ShowRequestsPage)
+		protected.Post("/requests", handlers.SubmitRequestHandler)
+		protected.Get("/profile", handlers.ShowProfilePage)
 	})
 
 	// ==========================================
 	// 👑 ADMIN ONLY ROUTES (Admin Rights Required)
 	// ==========================================
+
 	r.Group(func(admin chi.Router) {
-		// Double-guard: Must be logged in AND have an "admin" role flag
 		admin.Use(middleware.LoginRequired)
 		admin.Use(middleware.AdminRequired)
 
 		admin.Get("/tickets", handlers.ShowAdminTicketsDashboard)
-		admin.Post("/admin/meals", handlers.UpdateWeeklyMealPlan)
+		admin.Post("/meals", handlers.UpdateWeeklyMealPlan)
+
+		// Use your existing handler functions that are already built
 		admin.Get("/respond_ticket/{ticket_id}", handlers.ShowRespondTicketPage)
-		admin.Post("/respond_ticket/{ticket_id}", handlers.ProcessTicketResponse)
+		admin.Post("/respond_ticket/{ticket_id}", h.ProcessTicketResponse)
 		admin.Post("/tickets/delete/{ticket_id}", handlers.DeleteTicket)
 		admin.Post("/orders/status/{order_id}", handlers.UpdateOrderStatus)
 		admin.Post("/orders/delete/{order_id}", handlers.DeleteOrder)
@@ -149,7 +139,7 @@ func main() {
 	}
 }
 
-// fileServer sets up a sub-router to serve CSS, Javascript, and media image requests safely
+// fileServer sets up a sub-router to serve static assets safely
 func fileServer(r chi.Router, path string, root http.FileSystem) {
 	fs := http.StripPrefix(path, http.FileServer(root))
 

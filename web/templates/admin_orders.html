@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lordis - Staff Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dashboard-body">
+    <nav class="navbar">
+        <div class="nav-brand">Lordis Management</div>
+        <div class="nav-links">
+            <span class="user-greeting">Welcome, {{.Name}}</span>
+            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="/order">New Order</a>
+            <a href="/requests">Requests</a>
+            <a href="/profile">Profile</a>
+            <a href="/logout" class="btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="welcome-banner">
+            <span class="badge-accent">Admin Control Matrix</span>
+            <h1>Operations Command Center</h1>
+            <p>System monitoring and resource allocation management.</p>
+            <div class="banner-actions">
+                <a href="/admin/orders" class="btn-secondary">Manage Orders</a>
+                <a href="/admin/tickets" class="btn-primary">Review Tickets</a>
+            </div>
+        </section>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>Pending Meal Plans</h3>
+                <div class="metric-value">12</div>
+                <p class="metric-sub text-blue">Awaiting kitchen confirmation</p>
+            </div>
+
+            <div class="card">
+                <h3>Active Outing Tickets</h3>
+                <div class="metric-value">5</div>
+                <p class="metric-sub text-amber">Requires security review</p>
+            </div>
+
+            <div class="card">
+                <h3>Registered Personnel</h3>
+                <div class="metric-value">48</div>
+                <p class="metric-sub text-emerald">System nodes active</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

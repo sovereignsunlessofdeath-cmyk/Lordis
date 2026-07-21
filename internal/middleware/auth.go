@@ -2,36 +2,55 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gorilla/sessions"
 )
 
-// Initialize cookie store with a secure signing key
-var Store = sessions.NewCookieStore([]byte("lordis-super-secret-key-12345"))
+var Store = sessions.NewCookieStore([]byte(getSessionSecret()))
 
-// LoginRequired blocks unauthenticated users from seeing staff routes
+func getSessionSecret() string {
+	secret := os.Getenv("SESSION_SECRET")
+	if secret == "" {
+		secret = "lordis-super-secret-key-change-in-production"
+	}
+	return secret
+}
+
+// LoginRequired ensures that a user has an active session before accessing protected routes
 func LoginRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, _ := Store.Get(r, "lordis-session")
-
-		if _, ok := session.Values["name"]; !ok {
+		session, err := Store.Get(r, "lordis-session")
+		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
+
+		email, ok := session.Values["email"].(string)
+		if !ok || email == "" {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
 
-// AdminRequired blocks non-admin users from reaching sensitive views
+// AdminRequired ensures that the logged-in user possesses admin privileges
 func AdminRequired(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		session, _ := Store.Get(r, "lordis-session")
+		session, err := Store.Get(r, "lordis-session")
+		if err != nil {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			return
+		}
 
 		role, ok := session.Values["role"].(string)
 		if !ok || role != "admin" {
-			http.Error(w, "Unauthorized: Administration access required.", http.StatusForbidden)
+			http.Error(w, "Forbidden: Administrator access required", http.StatusForbidden)
 			return
 		}
+
 		next.ServeHTTP(w, r)
 	})
 }

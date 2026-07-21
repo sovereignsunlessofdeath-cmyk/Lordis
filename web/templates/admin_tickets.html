@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lordis - Admin Ticket Verifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        industrial: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dashboard-body bg-industrial-950 text-slate-100 min-h-screen">
+    <nav class="navbar border-b border-industrial-800 bg-industrial-900 px-6 py-4 flex justify-between items-center">
+        <div class="nav-brand font-bold tracking-wider text-blue-400">Lordis Admin Matrix</div>
+        <div class="nav-links flex items-center space-x-4">
+            <a href="/tickets" class="hover:text-blue-400 transition">Tickets Dashboard</a>
+            <a href="/admin/orders" class="hover:text-blue-400 transition">Manage Orders</a>
+            <a href="/logout" class="btn-logout text-red-400 hover:text-red-300 transition">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 max-w-5xl">
+        <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 shadow-xl">
+            <div class="mb-6 pb-4 border-b border-industrial-800 flex justify-between items-center">
+                <div>
+                    <span class="text-xs font-mono text-blue-400 uppercase tracking-widest">Security & Access</span>
+                    <h2 class="text-xl font-bold text-white mt-1">Outing Ticket Verifications</h2>
+                </div>
+                <span class="text-xs font-mono bg-industrial-950 px-3 py-1 rounded-md border border-industrial-800 text-slate-300">QUEUE: 5</span>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Ticket Card Item -->
+                <div class="bg-industrial-950 border border-industrial-800 rounded-lg p-5 flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-sm font-bold text-white">Client Meeting Site Visit</span>
+                            <span class="px-2 py-0.5 rounded text-xs font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20">HIGH PRIORITY</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-mono">Issued by: <span class="text-slate-200">Oluwaseun Dev</span> (oluwa@lordis.internal)</p>
+                        <div class="text-xs text-slate-300 bg-industrial-900 p-3 rounded border border-industrial-800 space-y-1 font-mono">
+                            <div><span class="text-blue-400">REASON:</span> Inspecting primary hardware deployment data center.</div>
+                            <div><span class="text-blue-400">OUTBOUND TIME:</span> 14:00 HRS</div>
+                            <div><span class="text-blue-400">EXPECTED RETURN:</span> 18:30 HRS</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 md:mt-0 flex flex-col items-end space-y-2 w-full md:w-auto">
+                        <form action="/admin/tickets/verify" method="POST" class="w-full space-y-2">
+                            <input type="hidden" name="ticket_id" value="TICKET_ID_HERE">
+                            <input type="text" name="response" placeholder="Admin response notes..." class="w-full bg-industrial-900 border border-industrial-800 text-xs text-white p-2 rounded focus:outline-none focus:border-blue-500">
+                            <div class="flex space-x-2">
+                                <button type="submit" name="status" value="Approved" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-mono text-xs px-4 py-2 rounded transition">APPROVE</button>
+                                <button type="submit" name="status" value="Rejected" class="flex-1 bg-red-600 hover:bg-red-500 text-white font-mono text-xs px-4 py-2 rounded transition">REJECT</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LORDIS // Industrial Operations Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        industrial: {
+                            950: '#070b14',
+                            900: '#0b1329',
+                            800: '#131e3a',
+                            700: '#1d2c54',
+                            accent: '#3b82f6',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-industrial-950 text-slate-200 font-sans antialiased selection:bg-blue-600 selection:text-white">
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Industrial Sidebar -->
+        <aside class="w-72 bg-industrial-900 border-r border-industrial-800 flex flex-col justify-between hidden md:flex">
+            <div>
+                <!-- Brand Header -->
+                <div class="px-6 py-6 border-b border-industrial-800 flex items-center space-x-3">
+                    <div class="w-3 h-3 bg-blue-500 rounded-xs animate-pulse"></div>
+                    <span class="text-lg font-bold tracking-widest text-white font-mono">LORDIS // OPS</span>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="mt-6 px-4 space-y-1.5 font-medium text-sm">
+                    <a href="/dashboard" class="flex items-center px-4 py-3 rounded-md bg-industrial-800 text-blue-400 border-l-2 border-blue-500 transition">Dashboard</a>
+                    <a href="/orders" class="flex items-center px-4 py-3 rounded-md text-slate-400 hover:text-white hover:bg-industrial-800 transition">Weekly Meal Plan</a>
+                    <a href="/tickets" class="flex items-center px-4 py-3 rounded-md text-slate-400 hover:text-white hover:bg-industrial-800 transition">Outing Tickets</a>
+                    <a href="/notifications" class="flex items-center px-4 py-3 rounded-md text-slate-400 hover:text-white hover:bg-industrial-800 transition">System Alerts</a>
+                </nav>
+            </div>
+
+            <!-- Sidebar Footer / Logout -->
+            <div class="p-4 border-t border-industrial-800">
+                <a href="/logout" class="flex items-center px-4 py-2.5 text-xs font-mono uppercase tracking-wider text-red-400 rounded-md hover:bg-red-500/10 transition">Terminate Session</a>
+            </div>
+        </aside>
+
+        <!-- Main Content Matrix -->
+        <div class="flex-1 flex flex-col overflow-y-auto">
+            <header class="bg-industrial-900/80 backdrop-blur-md border-b border-industrial-800 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+                <div class="flex items-center space-x-2 text-xs font-mono text-slate-400">
+                    <span>SYS.NODE</span>
+                    <span>/</span>
+                    <span class="text-blue-400">ACTIVE_SESSION</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <span class="text-xs font-mono text-slate-300">ONLINE</span>
+                </div>
+            </header>
+
+            <main class="p-8 max-w-7xl mx-auto w-full space-y-8">
+                <!-- Header Section -->
+                <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center shadow-xl">
+                    <div>
+                        <span class="text-xs font-mono text-blue-400 uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded border border-blue-500/20">Admin Control Matrix</span>
+                        <h1 class="text-2xl font-bold text-white mt-3">Operations Command Center</h1>
+                        <p class="text-xs text-slate-400 mt-1 font-mono">System monitoring and resource allocation management.</p>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex space-x-3">
+                        <a href="/admin/orders" class="bg-industrial-800 hover:bg-industrial-700 text-white font-mono text-xs px-4 py-2.5 rounded-lg border border-industrial-700 transition">Manage Orders</a>
+                        <a href="/admin/tickets" class="bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs px-4 py-2.5 rounded-lg transition shadow-lg shadow-blue-600/20">Review Tickets</a>
+                    </div>
+                </div>
+
+                <!-- Quick Metrics Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 shadow-xl hover:border-blue-500/50 transition">
+                        <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Pending Meal Plans</span>
+                        <div class="text-3xl font-bold text-white font-mono mt-2">12</div>
+                        <div class="text-xs text-blue-400 font-mono mt-1">Awaiting kitchen confirmation</div>
+                    </div>
+
+                    <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 shadow-xl hover:border-blue-500/50 transition">
+                        <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Active Outing Tickets</span>
+                        <div class="text-3xl font-bold text-white font-mono mt-2">5</div>
+                        <div class="text-xs text-amber-400 font-mono mt-1">Requires security review</div>
+                    </div>
+
+                    <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 shadow-xl hover:border-blue-500/50 transition">
+                        <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Registered Personnel</span>
+                        <div class="text-3xl font-bold text-white font-mono mt-2">48</div>
+                        <div class="text-xs text-emerald-400 font-mono mt-1">System nodes active</div>
+                    </div>
+                </div>
+
+                <!-- Action Modules Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 flex flex-col justify-between shadow-xl hover:border-blue-500/50 transition">
+                        <div class="space-y-2">
+                            <span class="text-xs font-mono text-blue-400">MODULE 01</span>
+                            <h3 class="text-lg font-bold text-white">Quick Order</h3>
+                            <p class="text-slate-400 text-xs">Submit a new meal or inventory order into the system workspace.</p>
+                        </div>
+                        <div class="mt-6">
+                            <a href="/order" class="block text-center bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs py-2.5 rounded-lg transition shadow-md shadow-blue-600/20">Create Order</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 flex flex-col justify-between shadow-xl hover:border-blue-500/50 transition">
+                        <div class="space-y-2">
+                            <span class="text-xs font-mono text-blue-400">MODULE 02</span>
+                            <h3 class="text-lg font-bold text-white">View Requests</h3>
+                            <p class="text-slate-400 text-xs">Check the status of your submitted tickets and view active logs.</p>
+                        </div>
+                        <div class="mt-6">
+                            <a href="/requests" class="block text-center bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs py-2.5 rounded-lg transition shadow-md shadow-blue-600/20">View Requests</a>
+                        </div>
+                    </div>
+
+                    <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 flex flex-col justify-between shadow-xl hover:border-blue-500/50 transition">
+                        <div class="space-y-2">
+                            <span class="text-xs font-mono text-blue-400">MODULE 03</span>
+                            <h3 class="text-lg font-bold text-white">Account Profile</h3>
+                            <p class="text-slate-400 text-xs">Review your personal configuration and user account credentials.</p>
+                        </div>
+                        <div class="mt-6">
+                            <a href="/profile" class="block text-center bg-industrial-800 hover:bg-industrial-700 border border-industrial-700 text-white font-mono text-xs py-2.5 rounded-lg transition">Manage Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+    </div>
+</body>
+</html>

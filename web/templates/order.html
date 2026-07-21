@@ -1,102 +1,181 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lordis - Weekly Meal Request</title>
-    <link rel="stylesheet" href="/static/css/style.css" />
-  </head>
-  <body class="body-padding">
-    <div class="container">
-      <div class="logo-left">
-        <span class="logo-text">Weekly Meal Request</span>
-        <p class="logo-admin-tag">
-          Choose one meal for a day of the week and submit it for review.
-        </p>
-      </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LORDIS // Weekly Meal Selection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        industrial: {
+                            950: '#070b14',
+                            900: '#0b1329',
+                            800: '#131e3a',
+                            700: '#1d2c54',
+                            accent: '#3b82f6',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
 
-      <div class="card">
-        <h1 class="welcome-title">Make Your Selection</h1>
-        <p class="logo-admin-tag">
-          You can update your request later by editing it on this page.
-        </p>
+        function toggleHomeDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('home-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
 
-        <form action="/order" method="POST">
-          <div class="input-group">
-            <label for="name">Your Name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value="{{.Name}}"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
+        window.addEventListener('click', function() {
+            const dropdown = document.getElementById('home-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    </script>
+</head>
+<body class="bg-industrial-950 text-slate-200 font-sans antialiased selection:bg-blue-600 selection:text-white flex flex-col h-screen overflow-hidden">
 
-          <div class="input-group">
-            <label for="day">Day of the Week</label>
-            <select id="day" name="day" required>
-              <option value="">Select a day</option>
-              <option value="Monday">Monday</option>
-              <option value="Tuesday">Tuesday</option>
-              <option value="Wednesday">Wednesday</option>
-              <option value="Thursday">Thursday</option>
-              <option value="Friday">Friday</option>
-            </select>
-          </div>
+    <!-- Top Navigation Bar -->
+    <header class="bg-industrial-900 border-b border-industrial-800 px-8 py-4 flex justify-between items-center z-20 flex-shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="w-3 h-3 bg-blue-500 rounded-xs animate-pulse"></div>
+            <span class="text-lg font-bold tracking-widest text-white font-mono">LORDIS</span>
+        </div>
 
-          <div class="input-group">
-            <label for="meal">Search meal option</label>
-            <input
-              type="text"
-              id="meal"
-              name="q"
-              value="{{.Query}}"
-              placeholder="Search for rice, amala, soup..."
-            />
-          </div>
+        <div class="flex items-center space-x-8">
+            <nav class="flex items-center space-x-6 text-sm font-medium">
+                <!-- Home Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleHomeDropdown(event)" class="flex items-center space-x-1.5 text-slate-300 hover:text-white transition focus:outline-none">
+                        <span class="font-mono">Home</span>
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="home-dropdown" class="hidden absolute left-0 mt-2 w-52 bg-industrial-900 border border-industrial-800 rounded-lg shadow-xl py-2 z-30 font-mono text-xs">
+                        <a href="/dashboard" class="block px-4 py-2.5 text-slate-300 hover:bg-industrial-800 hover:text-blue-400 transition">Dashboard</a>
+                        <a href="/order" class="block px-4 py-2.5 text-blue-400 bg-industrial-800/50 hover:bg-industrial-800 transition">New Order / Meals</a>
+                        <a href="/requests" class="block px-4 py-2.5 text-slate-300 hover:bg-industrial-800 hover:text-blue-400 transition">Tickets & Requests</a>
+                        <a href="/profile" class="block px-4 py-2.5 text-slate-300 hover:bg-industrial-800 hover:text-blue-400 transition">Profile</a>
+                    </div>
+                </div>
 
-          <div class="input-group">
-            <label for="meal">Meal Choice</label>
-            <select id="meal" name="meal" required>
-              <option value="">Select a meal</option>
-              {{range .Menu}}
-              <option value="{{.}}">{{.}}</option>
-              {{end}}
-            </select>
-          </div>
+                <a href="/dashboard" class="text-slate-400 hover:text-white transition font-mono">Dashboard</a>
+                <a href="/order" class="text-blue-400 font-semibold font-mono">New Order</a>
+                <a href="/requests" class="text-slate-400 hover:text-white transition font-mono">Requests</a>
+                <a href="/profile" class="text-slate-400 hover:text-white transition font-mono">Profile</a>
+            </nav>
 
-          <button type="submit" class="btn-primary">Submit Meal Request</button>
-        </form>
-      </div>
+            <div>
+                <a href="/logout" class="text-xs font-mono uppercase tracking-wider text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 px-4 py-2 rounded-lg transition">Logout</a>
+            </div>
+        </div>
+    </header>
 
-      <div class="card card-compact">
-        <h3 class="welcome-title">How it works</h3>
-        <ul>
-          <li>Enter your name and choose the day.</li>
-          <li>Search or browse the available meals for the week.</li>
-          <li>Select one meal for that day and submit.</li>
-          <li>
-            If you need to change your choice, come back and edit it here.
-          </li>
-        </ul>
-      </div>
+    <!-- Main Workspace -->
+    <main class="flex-1 overflow-y-auto p-8 max-w-4xl mx-auto w-full space-y-6">
+        
+        <!-- Page Switcher Bar -->
+        <div class="flex justify-between items-center bg-industrial-900 border border-industrial-800 px-6 py-3 rounded-lg text-xs font-mono">
+            <div class="flex items-center space-x-2 text-slate-400">
+                <span>SYS.NODE</span>
+                <span>/</span>
+                <span class="text-blue-400">WEEKLY_MEAL_SELECTION</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="/requests" class="text-slate-400 hover:text-blue-400 transition underline">Switch to Tickets</a>
+                <span class="text-slate-600">|</span>
+                <a href="/dashboard" class="text-slate-400 hover:text-blue-400 transition underline">Exit to Dashboard</a>
+            </div>
+        </div>
 
-      <nav class="nav-bottom">
-        <a href="/search-food" class="nav-item"
-          ><span class="nav-icon">🏠</span><span>Home</span></a
-        >
-        <a href="/submit-ticket" class="nav-item"
-          ><span class="nav-icon">🎫</span><span>Requests</span></a
-        >
-        <a href="/order-history" class="nav-item"
-          ><span class="nav-icon">🕒</span><span>Orders</span></a
-        >
-        <a href="/profile" class="nav-item"
-          ><span class="nav-icon">👤</span><span>Profile</span></a
-        >
-      </nav>
-    </div>
-  </body>
+        <!-- Weekly Meal Selection Form -->
+        <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-8 shadow-xl">
+            <div class="mb-6 pb-4 border-b border-industrial-800">
+                <span class="text-xs font-mono text-blue-400 uppercase tracking-widest">Logistics Module</span>
+                <h2 class="text-xl font-bold text-white mt-1">Select Weekly Meals</h2>
+                <p class="text-xs text-slate-400 mt-1 font-mono">Pick your preferred meal for each day from the choices provided by the admin.</p>
+            </div>
+
+            {{if .Success}}
+            <div class="mb-6 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 flex items-center space-x-3">
+                <div class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></div>
+                <p class="text-xs text-emerald-300 font-mono">Meal selections saved successfully!</p>
+            </div>
+            {{end}}
+
+            <form action="/order" method="POST" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="bg-industrial-950 p-4 rounded-lg border border-industrial-800">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-blue-400 mb-2">Monday Selection</label>
+                        <select name="monday" required class="w-full bg-industrial-900 border border-industrial-800 rounded-md p-3 text-sm text-white focus:outline-none focus:border-blue-500 transition font-mono">
+                            <option value="" disabled selected>-- Select Admin Available Meal --</option>
+                            <option value="Jollof Rice & Grilled Chicken">Jollof Rice & Grilled Chicken</option>
+                            <option value="Fried Plantain & Egg Sauce">Fried Plantain & Egg Sauce</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-industrial-950 p-4 rounded-lg border border-industrial-800">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-blue-400 mb-2">Tuesday Selection</label>
+                        <select name="tuesday" required class="w-full bg-industrial-900 border border-industrial-800 rounded-md p-3 text-sm text-white focus:outline-none focus:border-blue-500 transition font-mono">
+                            <option value="" disabled selected>-- Select Admin Available Meal --</option>
+                            <option value="Fried Rice & Fish">Fried Rice & Fish</option>
+                            <option value="Yam Porridge & Beef">Yam Porridge & Beef</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-industrial-950 p-4 rounded-lg border border-industrial-800">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-blue-400 mb-2">Wednesday Selection</label>
+                        <select name="wednesday" required class="w-full bg-industrial-900 border border-industrial-800 rounded-md p-3 text-sm text-white focus:outline-none focus:border-blue-500 transition font-mono">
+                            <option value="" disabled selected>-- Select Admin Available Meal --</option>
+                            <option value="Amala & Gbegiri / Ewedu">Amala & Gbegiri / Ewedu</option>
+                            <option value="Rice & Beans with Titus Fish">Rice & Beans with Titus Fish</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-industrial-950 p-4 rounded-lg border border-industrial-800">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-blue-400 mb-2">Thursday Selection</label>
+                        <select name="thursday" required class="w-full bg-industrial-900 border border-industrial-800 rounded-md p-3 text-sm text-white focus:outline-none focus:border-blue-500 transition font-mono">
+                            <option value="" disabled selected>-- Select Admin Available Meal --</option>
+                            <option value="Pounded Yam & Egusi Soup">Pounded Yam & Egusi Soup</option>
+                            <option value="Spaghetti Bolognese">Spaghetti Bolognese</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2 bg-industrial-950 p-4 rounded-lg border border-industrial-800">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-blue-400 mb-2">Friday Selection</label>
+                        <select name="friday" required class="w-full bg-industrial-900 border border-industrial-800 rounded-md p-3 text-sm text-white focus:outline-none focus:border-blue-500 transition font-mono">
+                            <option value="" disabled selected>-- Select Admin Available Meal --</option>
+                            <option value="Coconut Rice & Chicken">Coconut Rice & Chicken</option>
+                            <option value="Ofada Rice & Ayamase">Ofada Rice & Ayamase</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div>
+                    <label class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-2">Special Dietary Directives / Notes</label>
+                    <textarea name="notes" rows="3" placeholder="Additional instructions for kitchen staff..." class="w-full bg-industrial-950 border border-industrial-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-blue-500 transition"></textarea>
+                </div>
+
+                <div class="flex justify-end pt-4">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs tracking-wider uppercase px-6 py-3 rounded-lg font-medium transition shadow-lg shadow-blue-600/20">
+                        COMMIT WEEKLY SELECTION
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+</body>
 </html>

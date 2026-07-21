@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lordis - Staff Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="dashboard-body">
+    <nav class="navbar">
+        <div class="nav-brand">Lordis Management</div>
+        <div class="nav-links">
+            <span class="user-greeting">Welcome, {{.Name}}</span>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/order">New Order</a>
+            <a href="/requests">Requests</a>
+            <a href="/profile">Profile</a>
+            <a href="/logout" class="btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="space-y-6">
+            <!-- Header Section -->
+            <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div>
+                    <span class="text-xs font-mono text-blue-400 uppercase tracking-widest">Admin Control Matrix</span>
+                    <h1 class="text-2xl font-bold text-white mt-1">Operations Command Center</h1>
+                    <p class="text-xs text-slate-400 mt-1 font-mono">System monitoring and resource allocation management.</p>
+                </div>
+                <div class="mt-4 md:mt-0 flex space-x-3">
+                    <a href="/admin/orders" class="bg-industrial-800 hover:bg-industrial-700 text-white font-mono text-xs px-4 py-2.5 rounded-lg border border-industrial-700 transition">Manage Orders</a>
+                    <a href="/admin/tickets" class="bg-blue-600 hover:bg-blue-500 text-white font-mono text-xs px-4 py-2.5 rounded-lg transition shadow-lg shadow-blue-600/20">Review Tickets</a>
+                </div>
+            </div>
+
+            <!-- Quick Metrics Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6">
+                    <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Pending Meal Plans</span>
+                    <div class="text-3xl font-bold text-white font-mono mt-2">12</div>
+                    <div class="text-xs text-blue-400 font-mono mt-1">Awaiting kitchen confirmation</div>
+                </div>
+
+                <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6">
+                    <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Active Outing Tickets</span>
+                    <div class="text-3xl font-bold text-white font-mono mt-2">5</div>
+                    <div class="text-xs text-amber-400 font-mono mt-1">Requires security review</div>
+                </div>
+
+                <div class="bg-industrial-900 border border-industrial-800 rounded-xl p-6">
+                    <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Registered Personnel</span>
+                    <div class="text-3xl font-bold text-white font-mono mt-2">48</div>
+                    <div class="text-xs text-emerald-400 font-mono mt-1">System nodes active</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

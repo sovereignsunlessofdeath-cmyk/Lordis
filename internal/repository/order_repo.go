@@ -1,43 +1,76 @@
 package repository
 
 import (
-    "database/sql"
+	"context"
+	"time"
 
-    "lordis/internal/models"
+	"lordis/internal/database"
+	"lordis/internal/models"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-type OrderRepo struct{
-    DB *sql.DB
+type OrderRepository struct{}
+
+func NewOrderRepository() *OrderRepository {
+	return &OrderRepository{}
 }
 
-func NewOrderRepo(db *sql.DB) *OrderRepo {
-    return &OrderRepo{DB: db}
+func (r *OrderRepository) CreateWeeklyOrder(ctx context.Context, userEmail, userName string, weekDays map[string]string, notes string) (*mongo.InsertOneResult, error) {
+	ordersCollection := database.DB.Collection("orders")
+	newOrder := bson.M{
+		"user_email": userEmail,
+		"user_name":  userName,
+		"week_days":  weekDays,
+		"notes":      notes,
+		"status":     "Pending",
+		"created_at": time.Now(),
+	}
+	return ordersCollection.InsertOne(ctx, newOrder)
 }
 
-// Create adds a new order to the orders table (ensure you have migrated it).
-func (r *OrderRepo) Create(username, itemID string, qty int) (int, error) {
-    var id int
-    // This query assumes an `orders` table exists. If you don't use Postgres for orders,
-    // keep using the JSON store or adapt accordingly.
-    err := r.DB.QueryRow(`INSERT INTO orders (username, item_id, quantity, status, created_at) VALUES ($1,$2,$3,$4,now()) RETURNING id`, username, itemID, qty, "pending").Scan(&id)
-    return id, err
+func (r *OrderRepository) GetByUserEmail(ctx context.Context, email string) ([]models.Order, error) {
+	ordersCollection := database.DB.Collection("orders")
+	cursor, err := ordersCollection.Find(ctx, bson.M{"user_email": email})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var orders []models.Order
+	if err := cursor.All(ctx, &orders); err != nil {
+		return []models.Order{}, nil
+	}
+	return orders, nil
 }
 
-// ListByUser retrieves orders for a specific username.
-func (r *OrderRepo) ListByUser(username string) ([]models.Order, error) {
-    rows, err := r.DB.Query(`SELECT id, username, item_id, quantity, status, created_at FROM orders WHERE username=$1 ORDER BY created_at DESC`, username)
-    if err != nil {
-        return nil, err
-    }
-    defer rows.Close()
+func (r *OrderRepository) GetAll(ctx context.Context) ([]models.Order, error) {
+	ordersCollection := database.DB.Collection("orders")
+	cursor, err := ordersCollection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
 
-    var out []models.Order
-    for rows.Next() { 
-        var o models.Order
-        if err := rows.Scan(&o.ID, &o.Username, &o.ItemID, &o.Quantity, &o.Status, &o.CreatedAt); err != nil {
-            return nil, err
-        }
-        out = append(out, o)
-    }
-    return out, nil
+	var orders []models.Order
+	_ = cursor.All(ctx, &orders)
+	if orders == nil {
+		orders = []models.Order{}
+	}
+	return orders, nil
+}
+
+func (r *OrderRepository) UpdateStatus(ctx context.Context, objectID bson.ObjectID, status string) (*mongo.UpdateResult, error) {
+	ordersCollection := database.DB.Collection("orders")
+	return ordersCollection.UpdateOne(
+		ctx,
+		bson.M{"_id": objectID},
+		bson.M{"$set": bson.M{"status": status}},
+	)
+}
+
+func (r *OrderRepository) Delete(ctx context.Context, objectID bson.ObjectID) (*mongo.DeleteResult, error) {
+	ordersCollection := database.DB.Collection("orders")
+	return ordersCollection.DeleteOne(ctx, bson.M{"_id": objectID})
 }

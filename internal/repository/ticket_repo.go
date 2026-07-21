@@ -1,49 +1,92 @@
 package repository
 
 import (
-	"database/sql"
+	"context"
 	"time"
 
+	"lordis/internal/database"
 	"lordis/internal/models"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
-// TicketRepo provides ticket CRUD operations.
-type TicketRepo struct{
-    DB *sql.DB
+type TicketRepository struct{}
+
+func NewTicketRepository() *TicketRepository {
+	return &TicketRepository{}
 }
 
-func NewTicketRepo(db *sql.DB) *TicketRepo {
-    return &TicketRepo{DB: db}
+func (r *TicketRepository) Create(ctx context.Context, userEmail, userName, title, description, priority string) (*mongo.InsertOneResult, error) {
+	ticketsCollection := database.DB.Collection("tickets")
+	newTicket := bson.M{
+		"user_email":  userEmail,
+		"user_name":   userName,
+		"title":       title,
+		"description": description,
+		"priority":    priority,
+		"status":      "Open",
+		"response":    "",
+		"created_at":  time.Now(),
+	}
+	return ticketsCollection.InsertOne(ctx, newTicket)
 }
 
-func (r *TicketRepo) Create(t models.Ticket) (int, error) {
-    var id int
-    err := r.DB.QueryRow(
-        `INSERT INTO tickets (name, submitted_email, department, category, description, status) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-        t.Name, t.SubmittedEmail, t.Department, t.Category, t.Description, t.Status,
-    ).Scan(&id)
-    return id, err
+func (r *TicketRepository) GetByUserEmail(ctx context.Context, email string) ([]models.Ticket, error) {
+	ticketsCollection := database.DB.Collection("tickets")
+	cursor, err := ticketsCollection.Find(ctx, bson.M{"user_email": email})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var tickets []models.Ticket
+	if err := cursor.All(ctx, &tickets); err != nil {
+		return []models.Ticket{}, nil
+	}
+	return tickets, nil
 }
 
-func (r *TicketRepo) GetByID(id int) (models.Ticket, error) {
-    var t models.Ticket
-    var dateResolved sql.NullTime
-    row := r.DB.QueryRow(`SELECT id, name, submitted_email, department, category, description, status, date_resolved FROM tickets WHERE id=$1`, id)
-    err := row.Scan(&t.ID, &t.Name, &t.SubmittedEmail, &t.Department, &t.Category, &t.Description, &t.Status, &dateResolved)
-    if err != nil {
-        return t, err
-    }
-    if dateResolved.Valid {
-        t.DateResolved = dateResolved.Time.Format(time.RFC3339)
-    }
-    return t, nil
+func (r *TicketRepository) GetAll(ctx context.Context) ([]models.Ticket, error) {
+	ticketsCollection := database.DB.Collection("tickets")
+	cursor, err := ticketsCollection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var tickets []models.Ticket
+	_ = cursor.All(ctx, &tickets)
+	if tickets == nil {
+		tickets = []models.Ticket{}
+	}
+	return tickets, nil
 }
 
-func (r *TicketRepo) UpdateStatus(id int, status string, resolvedAt *time.Time) error {
-    if resolvedAt != nil {
-        _, err := r.DB.Exec(`UPDATE tickets SET status=$1, date_resolved=$2 WHERE id=$3`, status, *resolvedAt, id)
-        return err
-    }
-    _, err := r.DB.Exec(`UPDATE tickets SET status=$1 WHERE id=$2`, status, id)
-    return err
+func (r *TicketRepository) GetByID(ctx context.Context, objectID bson.ObjectID) (*models.Ticket, error) {
+	ticketsCollection := database.DB.Collection("tickets")
+	var ticket models.Ticket
+	err := ticketsCollection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&ticket)
+	if err != nil {
+		return nil, err
+	}
+	return &ticket, nil
+}
+
+func (r *TicketRepository) UpdateResponseAndStatus(ctx context.Context, objectID bson.ObjectID, responseMsg, status string) (*mongo.UpdateResult, error) {
+	ticketsCollection := database.DB.Collection("tickets")
+	return ticketsCollection.UpdateOne(
+		ctx,
+		bson.M{"_id": objectID},
+		bson.M{"$set": bson.M{
+			"response":   responseMsg,
+			"status":     status,
+			"updated_at": time.Now(),
+		}},
+	)
+}
+
+func (r *TicketRepository) Delete(ctx context.Context, objectID bson.ObjectID) (*mongo.DeleteResult, error) {
+	ticketsCollection := database.DB.Collection("tickets")
+	return ticketsCollection.DeleteOne(ctx, bson.M{"_id": objectID})
 }

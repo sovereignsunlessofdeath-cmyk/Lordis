@@ -3,52 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lordis - Staff Registration</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <title>Registration // LORDIS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { industrial: { 950: '#070b14', 900: '#0b1329', 800: '#131e3a', 700: '#1d2c54' } },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
+                }
+            }
+        }
+        function toggleAdminPin(select) {
+            const pinContainer = document.getElementById('admin-pin-container');
+            if (select.value === 'admin') {
+                pinContainer.classList.remove('hidden');
+            } else {
+                pinContainer.classList.add('hidden');
+            }
+        }
+    </script>
 </head>
-<body>
+<body class="bg-industrial-950 text-slate-200 font-sans flex items-center justify-center min-h-screen py-12 px-4">
+    <div class="bg-industrial-900 border border-industrial-800 p-8 rounded-xl shadow-2xl w-full max-w-md relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-400"></div>
 
-    <div class="container">
-        <div class="logo-container">
-            <span class="logo-text">
-                LOR<span class="text-red">DIS</span>
-            </span>
+        <div class="mb-6">
+            <span class="text-xs font-mono text-blue-400 uppercase tracking-widest">Personnel Provisioning</span>
+            <h2 class="text-2xl font-bold text-white mt-1 tracking-tight">NEW NODE REGISTRATION</h2>
+            <p class="text-xs text-slate-400 mt-1 font-mono">Accepted domains: Gmail, Yahoo, Outlook</p>
         </div>
 
-        <div class="card">
-            <h1>Create Staff Account</h1>
-            <p>Sign up with your official credentials to access the facility portal.</p>
-
-            {{if .Error}}
-            <div class="alert-error">
-                {{.Error}}
+        {{if .Error}}
+        <div class="mb-6 bg-red-500/10 border border-red-500/30 rounded-lg p-3.5 flex items-start space-x-3">
+            <div class="w-2 h-2 mt-1.5 rounded-full bg-red-500 shrink-0"></div>
+            <div>
+                <span class="text-xs font-mono uppercase tracking-wider text-red-400 font-bold block">Validation Fault</span>
+                <p class="text-xs text-red-300 font-mono mt-0.5">{{.Error}}</p>
             </div>
-            {{end}}
+        </div>
+        {{end}}
 
-            <form action="/register" method="POST">
-                <div class="input-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="Sodiq Kazeem" required>
-                </div>
+        <form action="/register" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">Full Name</label>
+                <input type="text" name="name" value="{{.Name}}" required class="w-full bg-industrial-950 border border-industrial-800 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition">
+            </div>
 
-                <div class="input-group">
-                    <label for="email">Work Email Address</label>
-                    <input type="email" id="email" name="email" placeholder="name@company.com" required>
-                </div>
+            <div>
+                <label class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">Email Address</label>
+                <input type="email" name="email" value="{{.Email}}" placeholder="user@gmail.com" required class="w-full bg-industrial-950 border border-industrial-800 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition">
+            </div>
 
-                <div class="input-group">
-                    <label for="password">Choose Password</label>
-                    <input type="password" id="password" name="password" placeholder="••••••••" minlength="8" required>
-                </div>
+            <div>
+                <label class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">Password Key</label>
+                <input type="password" name="password" required class="w-full bg-industrial-950 border border-industrial-800 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition">
+            </div>
 
-                <button type="submit" class="btn-primary">Register Account</button>
-            </form>
+            <!-- Account Role Selection -->
+            <div>
+                <label class="block text-xs font-mono uppercase tracking-wider text-slate-400 mb-1.5">Account Role</label>
+                <select name="role" id="role-select" onchange="toggleAdminPin(this)" class="w-full bg-industrial-950 border border-industrial-800 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-blue-500 transition">
+                    <option value="staff">Staff Member</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
 
-            <hr class="divider">
-            <a href="/login_admin" class="link-action">Admin Login</a>
-            <a href="/" class="link-action link-bold">Already have an account? Log In</a>
+            <!-- Hidden Admin Code Input (Appears only when Administrator is selected) -->
+            <div id="admin-pin-container" class="hidden">
+                <label class="block text-xs font-mono uppercase tracking-wider text-amber-400 mb-1.5">Admin Security Code</label>
+                <input type="password" name="admin_pin" placeholder="Enter security clearance..." class="w-full bg-industrial-950 border border-amber-500/50 rounded-lg px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-400 transition">
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm py-3 rounded-lg font-mono tracking-wide shadow-lg shadow-blue-600/20 mt-2 transition">
+                REGISTER NODE
+            </button>
+        </form>
+
+        <div class="mt-6 pt-4 border-t border-industrial-800 text-center">
+            <p class="text-xs text-slate-400">
+                Already have clearance? <a href="/login" class="text-blue-400 font-semibold hover:underline font-mono">Sign In</a>
+            </p>
         </div>
     </div>
-
 </body>
 </html>

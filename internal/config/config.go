@@ -4,31 +4,24 @@ import (
 	"os"
 )
 
-// Config holds global environmental values for Lordis
 type Config struct {
-	Port         string
-	BrevoAPIKey  string
-	SessionSecret string
+	MongoURI string
+	DBName   string
 }
 
-// LoadConfig fetches settings from the operating host environment
-func LoadConfig() *Config {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "10000"
+func NewConfigFromEnv() *Config {
+	uri := os.Getenv("MONGO_URI")
+	if uri == "" {
+		uri = "mongodb://localhost:27017"
 	}
 
-	brevoKey := os.Getenv("BREVO_API_KEY")
-
-	sessionSecret := os.Getenv("SESSION_SECRET")
-	if sessionSecret == "" {
-		// Fallback safe value for local environment execution
-		sessionSecret = "lordis-default-super-secret-key-string-54321"
+	dbName := os.Getenv("DB_NAME")
+	if dbName == "" {
+		dbName = "lordis"
 	}
 
 	return &Config{
-		Port:          port,
-		BrevoAPIKey:   brevoKey,
-		SessionSecret: sessionSecret,
+		MongoURI: uri,
+		DBName:   dbName,
 	}
 }
