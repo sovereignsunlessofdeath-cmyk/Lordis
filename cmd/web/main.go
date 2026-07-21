@@ -51,9 +51,9 @@ func main() {
 
 	// Connect to MongoDB
 	if err := database.ConnectMongo(); err != nil {
-		fmt.Printf("Warning: MongoDB connection error: %v\n", err)
+		fmt.Printf("CRITICAL: Failed to connect to MongoDB: %v\n", err)
+		os.Exit(1)
 	}
-	defer database.DisconnectMongo()
 
 	// Initialize HTML Templates
 	if err := handlers.InitTemplates(); err != nil {
